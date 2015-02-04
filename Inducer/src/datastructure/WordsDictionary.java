@@ -25,9 +25,9 @@ public class  WordsDictionary {
     
     // to add new word to the structure: (1) list (2) dictionary 
     // @param word should be >=1 length
-    static void addNewWord(String word) throws Exception{
-        if(word.length()<1)
-            throw new Exception(word + " can not be added! - (length<1)");
+    static void addNewWord(String word) {
+        if(word == null || word.isEmpty())
+            return;
         
         uniqueWordsList.add(word);
         
@@ -39,9 +39,9 @@ public class  WordsDictionary {
     }
     
     
-    public static void addWord(String word) throws Exception{
-        if(word.length()<1)
-            throw new Exception(word + " can not be added! - (length<1)");
+    public static void addWord(String word) {
+        if(word == null || word.isEmpty())
+            return;
                
         //check if exist
         if(wordsToIndexDictionary.get(word.charAt(0))==null){
@@ -56,9 +56,9 @@ public class  WordsDictionary {
     }
     
     //return -1  if doesnt exist
-    public static Integer getWordIndex(String word) throws Exception{
+    public static Integer getWordIndex(String word) {
         if(word.length()<1)
-            throw new Exception(word + " can not be added! - (length<1)");
+            return -1;
         
         if(wordsToIndexDictionary.get(word.charAt(0))==null){
             return -1;
@@ -78,9 +78,9 @@ public class  WordsDictionary {
         return uniqueWordsList.get(index);
     }
     
-    public static boolean isExist(String word) throws Exception{
-        if(word.length()<1)
-            throw new Exception(word + " can not be added! - (length<1)");
+    public static boolean isExist(String word) { 
+        if(word==null ||  word.isEmpty())
+            return false;
         
         if(wordsToIndexDictionary.get(word.charAt(0))==null){
             return false;
@@ -91,6 +91,11 @@ public class  WordsDictionary {
             }
             return true;
         }
+    }
+    
+    public static void resetWordsDictionary(){
+        WordsDictionary.uniqueWordsList.clear();
+        WordsDictionary.wordsToIndexDictionary.clear();
     }
     
 }
