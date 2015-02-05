@@ -45,6 +45,7 @@ public class Inducer {
         
         List<String> result= aa.runAlgorithm(test, 0.5);
         System.out.println( Postprocessing.toStringFromCM_SPAMResult(result.get(4)));
+        System.out.println( result.get(4));
         
         
     }

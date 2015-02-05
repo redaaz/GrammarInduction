@@ -93,6 +93,10 @@ public class  WordsDictionary {
         }
     }
     
+    public static boolean isExist(Integer index){
+        return index >=0 && index <=uniqueWordsList.size()-1;
+    }
+    
     public static void resetWordsDictionary(){
         WordsDictionary.uniqueWordsList.clear();
         WordsDictionary.wordsToIndexDictionary.clear();

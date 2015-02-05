@@ -26,7 +26,7 @@ public class Postprocessing {
         String res="";
         
         for(String str: Indexes){
-            if((!str.isEmpty()) && (tryParseInt(str))){
+            if((!str.isEmpty()) && (General.tryParseInt(str))){
                 res+=WordsDictionary.getWord(Integer.parseInt(str))+" ";
             }
         }
@@ -35,15 +35,5 @@ public class Postprocessing {
     }
  
     
-    private static boolean tryParseInt(String value)  
-    {  
-        try  
-        {  
-            Integer.parseInt(value);  
-            return true;  
-        } catch(NumberFormatException nfe)  
-        {  
-            return false;  
-        }  
-    }
+    
 }
