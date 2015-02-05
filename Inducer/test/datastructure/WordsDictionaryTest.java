@@ -179,7 +179,7 @@ public class WordsDictionaryTest {
         assertTrue(WordsDictionary.isExist("cccc2"));
         assertTrue(WordsDictionary.isExist("cccc"));
         
-        assertFalse(WordsDictionary.isExist(null));
+        assertFalse(WordsDictionary.isExist((String)null));
         assertFalse(WordsDictionary.isExist("2222"));
         assertFalse(WordsDictionary.isExist(""));
         
