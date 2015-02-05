@@ -25,9 +25,9 @@ public class  WordsDictionary {
     
     // to add new word to the structure: (1) list (2) dictionary 
     // @param word should be >=1 length
-    static void addNewWord(String word) {
+    static int addNewWord(String word) {
         if(word == null || word.isEmpty())
-            return;
+            return -1;
         
         uniqueWordsList.add(word);
         
@@ -35,24 +35,24 @@ public class  WordsDictionary {
             wordsToIndexDictionary.put(word.charAt(0), new HashMap<>());
         
         wordsToIndexDictionary.get(word.charAt(0)).put(word, uniqueWordsList.size()-1);
-       
+        return uniqueWordsList.size()-1;
     }
     
-    
-    public static void addWord(String word) {
+    //returns -1 : Error | -2 : word is exist
+    public static int addWord(String word) {
         if(word == null || word.isEmpty())
-            return;
+            return -1;
                
         //check if exist
         if(wordsToIndexDictionary.get(word.charAt(0))==null){
-            addNewWord(word);
+            return addNewWord(word);
         }
         else{
             if(wordsToIndexDictionary.get(word.charAt(0)).get(word)==null){
-                addNewWord(word);
+                return addNewWord(word);
             }
         }
-        
+        return -2;
     }
     
     //return -1  if doesnt exist
