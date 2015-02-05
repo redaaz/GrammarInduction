@@ -64,5 +64,9 @@ public class Sentence {
         return res;
     }
     
-    
+    public String toStringCM_SPAM(){
+        String res="";
+        res = sentenceCode.stream().map((i) -> ""+i+" -1 ").reduce(res, String::concat);
+        return res+"-2";
+    }
 }
