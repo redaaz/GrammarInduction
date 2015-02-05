@@ -10,6 +10,7 @@ import datastructure.Sentence;
 import java.util.ArrayList;
 import java.util.List;
 import spm.spam.AlgoCMSPAM;
+import text.Postprocessing;
 
 /**
  *
@@ -42,9 +43,9 @@ public class Inducer {
         
         AlgoCMSPAM aa=new AlgoCMSPAM();
         
-        List<String> result= aa.runAlgorithm(test, 0.1);
+        List<String> result= aa.runAlgorithm(test, 0.5);
+        System.out.println( Postprocessing.toStringFromCM_SPAMResult(result.get(4)));
         
-        int t=4+6;
         
     }
     
