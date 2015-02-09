@@ -125,6 +125,12 @@ public class FrequentPattern {
         });
          System.out.println();
     }
+    
+    public String getReferencesList(){
+        String res="";
+        res = this.inputReferences.stream().map((i) -> (""+i+" ")).reduce(res, String::concat);
+        return res;
+    }
     //check that all pattern items appear in the refreces sentences in the correst order
     //this is not efficient solution for this issue 
     public List<Integer> patternOrderCorrection(List<Integer> references){
@@ -134,8 +140,6 @@ public class FrequentPattern {
                 
         return res;
     }
-    
-    
     
     public  List<Integer> intersect(List<List<Repetition>> input,List<String> in){
         
@@ -159,19 +163,17 @@ public class FrequentPattern {
         .map(x->x.inputSentenceID).collect(Collectors.toList())));
         }
         
-        
         List<Integer> res1=new ArrayList<>(uniqueNums);
         List<Integer> res=new ArrayList<>();
         
         for(Integer i: res1){
-            
             if (General.ContainsSequence(this.pattern,General.toIntegerList(in.get(i))))
-               res.add(i);
-                
+               res.add(i);       
         }
-        
-        
-        
         return res;
+    }
+    
+    public void println(){
+        System.out.println(this.toString()+" ("+this.sup+") "+this.getReferencesList());
     }
 }
