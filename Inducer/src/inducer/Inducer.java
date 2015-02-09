@@ -51,8 +51,7 @@ public class Inducer {
         List<FrequentPattern> result= aa.runAlgorithm(test, 0.5);
         
         for(FrequentPattern fp:result){
-            System.out.println(fp.toStringWithSup());
-            fp.printReferencesList();
+            fp.println();
         }
         
         
