@@ -59,4 +59,22 @@ public class General {
         return true;
     }
     
+    //convert from CMSPAM coded string to list of integer
+    public static List<Integer> toIntegerList(String x){
+        List<Integer> res=new ArrayList<>();
+        String str=x.replace("-2", "");
+        String replaced = str.replace(" -1 "," ");
+        String[] tokens= replaced.split(" ");
+        
+        for(String s:tokens){
+            if(tryParseInt(s)){
+                res.add(Integer.parseInt(s));
+            }
+            else{
+                return null;
+            }
+        }
+        
+        return res;
+    }
 }
