@@ -8,11 +8,11 @@ package inducer;
 
 import datastructure.FrequentPattern;
 import datastructure.Sentence;
+import datastructure.WordsDictionary;
 import java.util.ArrayList;
 import java.util.List;
 import spm.spam.AlgoCMSPAM;
-import spm.spam.Bitmap;
-import text.Postprocessing;
+
 
 /**
  *
@@ -46,7 +46,8 @@ public class Inducer {
         test.add(s7.toStringCM_SPAM());
         
         AlgoCMSPAM aa=new AlgoCMSPAM();
-        
+        WordsDictionary gtt=new WordsDictionary();
+        WordsDictionary.getWord(2);
         List<FrequentPattern> result= aa.runAlgorithm(test, 0.5);
         
         for(FrequentPattern fp:result){
