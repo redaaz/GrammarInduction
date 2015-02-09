@@ -164,8 +164,8 @@ public class FrequentPattern {
         List<Integer> res=new ArrayList<>();
         
         for(Integer i: res1){
-            Sentence sss=new Sentence(in.get(i));
-            if (General.ContainsSequence(this.pattern,sss.sentenceCode ))
+            
+            if (General.ContainsSequence(this.pattern,General.toIntegerList(in.get(i))))
                res.add(i);
                 
         }
