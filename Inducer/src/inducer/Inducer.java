@@ -6,10 +6,12 @@
 
 package inducer;
 
+import datastructure.FrequentPattern;
 import datastructure.Sentence;
 import java.util.ArrayList;
 import java.util.List;
 import spm.spam.AlgoCMSPAM;
+import spm.spam.Bitmap;
 import text.Postprocessing;
 
 /**
@@ -22,6 +24,8 @@ public class Inducer {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        
+        
         // TODO code application logic here
         //this code is JUST to test
         List<String> test=new ArrayList<>();
@@ -32,7 +36,7 @@ public class Inducer {
         Sentence s5=new Sentence("h5 h3 h1");
         Sentence s6=new Sentence("h7 h5 h1 h4 h1");
         Sentence s7=new Sentence("h1 h3");
-        System.out.println(s1.toStringCM_SPAM());
+        //System.out.println(s1.toStringCM_SPAM());
         test.add(s1.toStringCM_SPAM());
         test.add(s2.toStringCM_SPAM());
         test.add(s3.toStringCM_SPAM());
@@ -43,11 +47,19 @@ public class Inducer {
         
         AlgoCMSPAM aa=new AlgoCMSPAM();
         
-        List<String> result= aa.runAlgorithm(test, 0.5);
-        System.out.println( Postprocessing.toStringFromCM_SPAMResult(result.get(4)));
-        System.out.println( result.get(4));
+        List<FrequentPattern> result= aa.runAlgorithm(test, 0.5);
+        
+        for(FrequentPattern fp:result){
+            System.out.println(fp.toStringWithSup());
+            fp.printReferencesList();
+        }
         
         
+        
+        
+        
+        
+        int i=9+0;
     }
     
 }

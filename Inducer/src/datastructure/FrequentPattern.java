@@ -7,7 +7,10 @@
 package datastructure;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import text.General;
 
 /**
@@ -17,14 +20,17 @@ import text.General;
 public class FrequentPattern {
     List<Integer> pattern;
     int sup;
+    List<Integer> inputReferences;
     
     public FrequentPattern(){
         pattern = new ArrayList<>();
+        inputReferences=new ArrayList<>();
         sup=0;
     }
     
     public FrequentPattern(List<Integer> in,int supp){
         this.sup=supp;
+        inputReferences=new ArrayList<>();
         pattern = new ArrayList<>();
         pattern = in;
     }
@@ -102,5 +108,70 @@ public class FrequentPattern {
     
     public String toStringCodeWithSup(){
         return toStringCode()+ "SUP: "+sup;
+    }
+    
+    //@param input is a list of repetitions for each token in the frequent pattern - repetition means: [inputSentenceID & tokenPosition in such input sentence ]
+    public void setInputReferences(List<List<Repetition>> input,List<String> in ){
+        this.inputReferences=intersect(input,in);
+    }
+    
+    public List<Integer> getPattern(){
+        return this.pattern;
+    }
+    
+    public void printReferencesList(){
+        this.inputReferences.stream().forEach((i) -> {
+            System.out.print(i+" ");
+        });
+         System.out.println();
+    }
+    //check that all pattern items appear in the refreces sentences in the correst order
+    //this is not efficient solution for this issue 
+    public List<Integer> patternOrderCorrection(List<Integer> references){
+        List<Integer> res=new ArrayList<>();
+        
+        
+                
+        return res;
+    }
+    
+    
+    
+    public  List<Integer> intersect(List<List<Repetition>> input,List<String> in){
+        
+        
+        //choose smallest set to optimaize the intersection
+        int minListSizeIndex=-1;
+        int minListSize=Integer.MAX_VALUE;
+        for(int i=0;i<input.size();i++){
+            if(!input.get(i).isEmpty()&& input.get(i).size()<minListSize){
+                minListSizeIndex=i;
+                minListSize=input.get(i).size();
+            }        
+        }
+        
+        Set<Integer> uniqueNums = new HashSet<>(input.get(minListSizeIndex).stream()
+        .map(x->x.inputSentenceID).collect(Collectors.toList()));
+        
+        for(int i=0;i<input.size();i++){
+            if(i!=minListSizeIndex)
+                uniqueNums.retainAll(new HashSet<>(input.get(i).stream()
+        .map(x->x.inputSentenceID).collect(Collectors.toList())));
+        }
+        
+        
+        List<Integer> res1=new ArrayList<>(uniqueNums);
+        List<Integer> res=new ArrayList<>();
+        
+        for(Integer i: res1){
+            Sentence sss=new Sentence(in.get(i));
+            if (General.ContainsSequence(this.pattern,sss.sentenceCode ))
+               res.add(i);
+                
+        }
+        
+        
+        
+        return res;
     }
 }

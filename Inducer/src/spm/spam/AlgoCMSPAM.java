@@ -1,6 +1,8 @@
 package spm.spam;
 
 
+import datastructure.FrequentPattern;
+import datastructure.Repetition;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -16,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import spm.pattern.Itemset;
 import spm.tools.MemoryLogger;
 
@@ -62,7 +63,7 @@ public class AlgoCMSPAM {
     // object to write to a file
     BufferedWriter writer = null;
     // Vertical database
-    Map<Integer, Bitmap> verticalDB = new HashMap<Integer, Bitmap>();
+    public Map<Integer, Bitmap> verticalDB = new HashMap<>();
     // List indicating the number of bits per sequence
     List<Integer> sequencesSize = null;
     int lastBitIndex = 0;  // the last bit position that is used in bitmaps
@@ -111,12 +112,12 @@ public class AlgoCMSPAM {
         writer.close();
     }
     
-    public List<String> runAlgorithm(List<String> input, double minsupRel) {
+    public List<FrequentPattern> runAlgorithm(List<String> input, double minsupRel) {
         Bitmap.INTERSECTION_COUNT = 0;
         // create an object to write the file
         
         /////////writer = new BufferedWriter(new FileWriter(outputFilePath));
-        List<String> res=new ArrayList<>();
+        List<String> strRes=new ArrayList<>();
         // initialize the number of patterns found
         patternCount = 0;
         // to log the memory used
@@ -125,11 +126,25 @@ public class AlgoCMSPAM {
         // record start time
         startTime = System.currentTimeMillis();
         // RUN THE ALGORITHM
-        spam(input, minsupRel,res);
+        spam(input, minsupRel, strRes);
         // record end time
         endTime = System.currentTimeMillis();
         // close the file
         /////////writer.close();
+        List<FrequentPattern> res=new ArrayList<>();
+        for(String str:strRes){
+            FrequentPattern x=new FrequentPattern(str);
+            
+            List<List<Repetition>> ref=new ArrayList<>();
+            
+            for(int i:x.getPattern()){
+                ref.add(this.verticalDB.get(i).inputReferences);
+            }
+            x.setInputReferences(ref,input);
+            res.add(x);
+        }
+        
+        
         return res;
     }
 
@@ -143,7 +158,7 @@ public class AlgoCMSPAM {
     private void spam(String input, double minsupRel) throws IOException {
         // the structure to store the vertical database
         // key: an item    value : bitmap
-        verticalDB = new HashMap<Integer, Bitmap>();
+        verticalDB = new HashMap<>();
 
         // structure to store the horizontal database
         List<int[]> inMemoryDB = new ArrayList<int[]>();
@@ -998,4 +1013,6 @@ public class AlgoCMSPAM {
     public void setMaximumPatternLength(int maximumPatternLength) {
         this.maximumPatternLength = maximumPatternLength;
     }
+    
+    
 }

@@ -1,8 +1,11 @@
 package spm.spam;
 
+import datastructure.Repetition;
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.List;
+
 
 /**
  * Implementation of a bitmap for SPAM.
@@ -52,6 +55,8 @@ public class Bitmap {
 	private int support = 0;  // the number of bits that are currently set to 1
 	
 	int sidsum = 0;
+        /////TOTEST CODE
+        public List<Repetition> inputReferences;
 	
 	/**
 	 * Constructor
@@ -93,6 +98,14 @@ public class Bitmap {
 		
 		// remember the last SID with a bit set to 1
 		lastSID = sid;
+                /////TOTEST CODE
+                if(inputReferences==null)
+                    inputReferences=new ArrayList<>();
+                if(inputReferences.isEmpty())
+                    inputReferences.add(new Repetition(sid,tid));
+                if(!inputReferences.isEmpty() && inputReferences.get(inputReferences.size()-1).inputSentenceID!=sid)
+                    inputReferences.add(new Repetition(sid,tid));
+                
 	}
 	
 	/**
