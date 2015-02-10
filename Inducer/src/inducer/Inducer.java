@@ -7,11 +7,15 @@
 package inducer;
 
 import datastructure.FrequentPattern;
+import datastructure.MainRule;
+import datastructure.Rule;
 import datastructure.Sentence;
+import datastructure.SubRule;
 import datastructure.WordsDictionary;
-import heuristic.MostCohesiveLongest;
 import heuristic.LongestMostFrequent;
+import heuristic.MostCohesiveLongest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import spm.spam.AlgoCMSPAM;
 
@@ -53,7 +57,6 @@ public class Inducer {
         List<FrequentPattern> result= aa.runAlgorithm(test, 0.4);
         
         for(FrequentPattern fp:result){
-            System.out.print("["+fp.getCohesion()+"]"); 
             fp.println();
         }
         
@@ -70,6 +73,16 @@ public class Inducer {
         System.out.println("MostCohesiveLongest");
         bsetFI2.println();
         System.out.println(js.getMaxSim());
+        
+        MainRule rr=new MainRule();
+        rr.setElements(Arrays.asList(1,3,5,7,9));
+        
+        System.out.println(rr.toString());
+        
+        SubRule rr1=new SubRule();
+        rr1.setAlternatives(Arrays.asList(Arrays.asList(1,3,5),Arrays.asList(2,4,6,0),Arrays.asList(6,7,8)));
+        
+        System.out.println(rr1.toString());
         
         int i=9+0;
     }
