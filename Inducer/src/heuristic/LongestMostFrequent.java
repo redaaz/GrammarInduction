@@ -24,14 +24,12 @@ public class LongestMostFrequent implements Heuristics{
         if(input.size()==1)
             return input.get(0);
         
-        Collections.sort(input,FruitNameComparator);
+        Collections.sort(input,LongestMostFrequentComparator);
         
         return input.get(input.size()-1);
     }
-
-   
-
-    public static Comparator<FrequentPattern> FruitNameComparator 
+    
+    public static Comparator<FrequentPattern> LongestMostFrequentComparator 
                           = (FrequentPattern fp1, FrequentPattern fp2) -> {
                               if(fp1.getPattern().size()<fp2.getPattern().size())
                                   return -1;
