@@ -9,6 +9,7 @@ package inducer;
 import datastructure.FrequentPattern;
 import datastructure.Sentence;
 import datastructure.WordsDictionary;
+import heuristic.LongestMostFrequent;
 import java.util.ArrayList;
 import java.util.List;
 import spm.spam.AlgoCMSPAM;
@@ -54,9 +55,10 @@ public class Inducer {
             fp.println();
         }
         
-        
-        
-        
+        LongestMostFrequent lmf=new LongestMostFrequent();
+        FrequentPattern bsetFI=lmf.chooseFrequentPattern(result);
+        System.out.println();
+        bsetFI.println();
         
         
         int i=9+0;
