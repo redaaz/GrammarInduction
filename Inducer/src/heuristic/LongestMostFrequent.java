@@ -7,6 +7,7 @@
 package heuristic;
 
 import datastructure.FrequentPattern;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -17,7 +18,14 @@ public class LongestMostFrequent implements Heuristics {
 
     @Override
     public FrequentPattern chooseFrequentPattern(List<FrequentPattern> input) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if(input.isEmpty())
+            return null;
+        if(input.size()==1)
+            return input.get(0);
+        
+        Collections.sort(input);
+        
+        return input.get(input.size()-1);
     }
     
 }
