@@ -32,28 +32,19 @@ public class LongestMostFrequent implements Heuristics{
    
 
     public static Comparator<FrequentPattern> FruitNameComparator 
-                          = new Comparator<FrequentPattern>() {
- 
-	    public int compare(FrequentPattern fp1, FrequentPattern fp2) {
- 
-	        // compareTo should return < 0 if this is supposed to be
-                // less than other, > 0 if this is supposed to be greater than 
-                // other and 0 if they are supposed to be equal
-
-                if(fp1.getPattern().size()<fp2.getPattern().size())
-                    return -1;
-                if(fp1.getPattern().size()>fp2.getPattern().size())
-                    return 1;
-                //if this.pattern.size()==o.pattern.size()
-                if(fp1.getSup()<fp2.getSup())
-                    return -1;
-                if(fp1.getSup()>fp2.getSup())
-                    return 1;
-                //if this.sup==o.sup
-                return 0;
-	    }
- 
-	};
+                          = (FrequentPattern fp1, FrequentPattern fp2) -> {
+                              if(fp1.getPattern().size()<fp2.getPattern().size())
+                                  return -1;
+                              if(fp1.getPattern().size()>fp2.getPattern().size())
+                                  return 1;
+                              //if this.pattern.size()==o.pattern.size()
+                              if(fp1.getSup()<fp2.getSup())
+                                  return -1;
+                              if(fp1.getSup()>fp2.getSup())
+                                  return 1;
+                              //if this.sup==o.sup
+                              return 0;
+    };
 
     
     
