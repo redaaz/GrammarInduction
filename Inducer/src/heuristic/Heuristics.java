@@ -15,6 +15,6 @@ import java.util.List;
  */
 public interface Heuristics {
        
-    public void chooseFrequentPattern(List<FrequentPattern> input);
+    public FrequentPattern chooseFrequentPattern(List<FrequentPattern> input);
     
 }

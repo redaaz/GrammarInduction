@@ -47,7 +47,7 @@ public class Inducer {
         
         AlgoCMSPAM aa=new AlgoCMSPAM();
         WordsDictionary gtt=new WordsDictionary();
-        WordsDictionary.getWord(2);
+        
         List<FrequentPattern> result= aa.runAlgorithm(test, 0.5);
         
         for(FrequentPattern fp:result){

@@ -13,10 +13,10 @@ import java.util.List;
  *
  * @author reda
  */
-public class MostFrequent implements Heuristics {
+public class LongestMostFrequent implements Heuristics {
 
     @Override
-    public void chooseFrequentPattern(List<FrequentPattern> input) {
+    public FrequentPattern chooseFrequentPattern(List<FrequentPattern> input) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
