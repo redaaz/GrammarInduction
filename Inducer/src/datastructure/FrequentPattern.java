@@ -17,7 +17,7 @@ import text.General;
  *
  * @author reda
  */
-public class FrequentPattern {
+public class FrequentPattern implements Comparable<FrequentPattern>{
     List<Integer> pattern;
     int sup;
     List<Integer> inputReferences;
@@ -175,5 +175,24 @@ public class FrequentPattern {
     
     public void println(){
         System.out.println(this.toString()+" ("+this.sup+") "+this.getReferencesList());
+    }
+
+    @Override
+    public int compareTo(FrequentPattern o) {
+        // compareTo should return < 0 if this is supposed to be
+        // less than other, > 0 if this is supposed to be greater than 
+        // other and 0 if they are supposed to be equal
+        
+        if(this.pattern.size()<o.pattern.size())
+            return -1;
+        if(this.pattern.size()>o.pattern.size())
+            return 1;
+        //if this.pattern.size()==o.pattern.size()
+        if(this.sup<o.sup)
+            return -1;
+        if(this.sup>o.sup)
+            return 1;
+        //if this.sup==o.sup
+        return 0;
     }
 }
