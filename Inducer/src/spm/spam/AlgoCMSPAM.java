@@ -141,6 +141,7 @@ public class AlgoCMSPAM {
                 ref.add(this.verticalDB.get(i).inputReferences);
             }
             x.setInputReferences(ref,input);
+            x.setCohesion(verticalDB);
             res.add(x);
         }
         
