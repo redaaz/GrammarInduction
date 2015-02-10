@@ -34,7 +34,7 @@ public class Inducer {
         
         // TODO code application logic here
         //this code is JUST to test
-        List<String> test=new ArrayList<>();
+        List<Sentence> test=new ArrayList<>();
         Sentence s1=new Sentence("h1 h2 h9 h10 h6 h3 h4 h8");
         Sentence s2=new Sentence("h2 h3 h5 h1");
         Sentence s3=new Sentence("h1 h3 h5 h2 h7");
@@ -42,14 +42,8 @@ public class Inducer {
         Sentence s5=new Sentence("h5 h3 h1");
         Sentence s6=new Sentence("h7 h5 h1 h4 h1");
         Sentence s7=new Sentence("h1 h3 h9 h10");
-        //System.out.println(s1.toStringCM_SPAM());
-        test.add(s1.toStringCM_SPAM());
-        test.add(s2.toStringCM_SPAM());
-        test.add(s3.toStringCM_SPAM());
-        test.add(s4.toStringCM_SPAM());
-        test.add(s5.toStringCM_SPAM());
-        test.add(s6.toStringCM_SPAM());
-        test.add(s7.toStringCM_SPAM());
+        
+        test = Arrays.asList(s1,s2,s3,s4,s5,s6,s7);
         
         AlgoCMSPAM aa=new AlgoCMSPAM();
         WordsDictionary gtt=new WordsDictionary();

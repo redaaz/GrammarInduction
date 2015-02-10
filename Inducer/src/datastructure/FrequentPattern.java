@@ -116,7 +116,7 @@ public class FrequentPattern {
     }
     
     //@param input is a list of repetitions for each token in the frequent pattern - repetition means: [inputSentenceID & tokenPosition in such input sentence ]
-    public void setInputReferences(List<List<Repetition>> input,List<String> in ){
+    public void setInputReferences(List<List<Repetition>> input,List<Sentence> in ){
         this.inputReferences=intersect(input,in);
     }
     //to calc cohesion by Jaccard index law i.e.: intersection(11)/union (10||01||11)
@@ -166,7 +166,7 @@ public class FrequentPattern {
         return res;
     }
     
-    public  List<Integer> intersect(List<List<Repetition>> input,List<String> in){
+    public  List<Integer> intersect(List<List<Repetition>> input,List<Sentence> in){
         
         
         //choose smallest set to optimaize the intersection
@@ -192,7 +192,7 @@ public class FrequentPattern {
         List<Integer> res=new ArrayList<>();
         
         for(Integer i: res1){
-            if (General.ContainsSequence(this.pattern,General.toIntegerList(in.get(i))))
+            if (General.ContainsSequence(this.pattern,General.toIntegerList(in.get(i).toStringCM_SPAM())))
                res.add(i);       
         }
         return res;

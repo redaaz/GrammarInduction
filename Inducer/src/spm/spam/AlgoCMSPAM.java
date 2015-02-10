@@ -3,6 +3,7 @@ package spm.spam;
 
 import datastructure.FrequentPattern;
 import datastructure.Repetition;
+import datastructure.Sentence;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -112,7 +113,7 @@ public class AlgoCMSPAM {
         writer.close();
     }
     
-    public List<FrequentPattern> runAlgorithm(List<String> input, double minsupRel) {
+    public List<FrequentPattern> runAlgorithm(List<Sentence> input, double minsupRel) {
         Bitmap.INTERSECTION_COUNT = 0;
         // create an object to write the file
         
@@ -395,7 +396,7 @@ public class AlgoCMSPAM {
      * @param minsupRel the minimum support as a relative value
      * @throws IOException
      */
-    private void spam(List<String> input, double minsupRel,List<String> results)  {
+    private void spam(List<Sentence> input, double minsupRel,List<String> results)  {
         // the structure to store the vertical database
         // key: an item    value : bitmap
         verticalDB = new HashMap<Integer, Bitmap>();
@@ -415,7 +416,8 @@ public class AlgoCMSPAM {
             int bitIndex = 0;
             // for each line (sequence) in the file until the end
             /////////while ((thisLine = reader.readLine()) != null) {
-            for(String thisLine: input){
+            for(Sentence thisSen: input){
+                String thisLine=thisSen.toStringCM_SPAM();
                 // if the line is  a comment, is  empty or is a
                 // kind of metadata
                 if (thisLine.isEmpty() == true
@@ -467,7 +469,8 @@ public class AlgoCMSPAM {
 
             // for each line (sequence) from the input file
             /////////while ((thisLine = reader.readLine()) != null) {
-            for(String thisLine: input){
+            for(Sentence thisSen: input){
+                String thisLine=thisSen.toStringCM_SPAM();
                 // split the sequence according to spaces into tokens
                 for (String token : thisLine.split(" ")) {
                     if (token.equals("-1")) { // indicate the end of an itemset
