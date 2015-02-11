@@ -6,10 +6,18 @@
 
 package text;
 
+import datastructure.CommonSlots;
+import datastructure.FrequentPattern;
+import datastructure.Slot;
+import heuristic.MostFrequentLongest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import spm.spam.AlgoCMSPAM;
 
 
 /**
@@ -107,5 +115,49 @@ public class General {
            res.add(toSplit.subList(index, toSplit.size()));     
         }
         return res;
+    }
+    
+    public static CommonSlots findCommonReferencesSlots(List<Slot> slots){
+        List<List<Integer>> in=new ArrayList<>();
+        slots.stream().map(x->in.add(x.getReferenceIndexs()));
+        CommonSlots cs=intersect(in);
+        return cs;
+    }
+    
+    //lists: list of references (input indexs for each slot)
+    //this function find the best intersection between slots to build new rules
+    static CommonSlots intersect(List<List<Integer>> lists){
+        if(lists==null || lists.isEmpty())
+            return null;
+        if(lists.size()==1){
+            CommonSlots res=new CommonSlots();
+            res.commonReferences=lists.get(0);
+            res.solts=Arrays.asList(0);
+            return res;
+        }
+        List<String> input=new ArrayList<>();
+        lists.stream().forEach(li->input.add(integerListToCMSPAMString(li)));
+        //find best slots set to build new rules
+        AlgoCMSPAM algo=new AlgoCMSPAM();
+        List<FrequentPattern> results= algo.runAlgorithm2(input, 0.4);
+        MostFrequentLongest mfl=new MostFrequentLongest();
+        // pattern here: is common references between slots
+        // sentences here: each slot(references list) is an input sentence 
+        // references here: is chosen slot's ids to build new rules
+        FrequentPattern bestSlot=mfl.chooseFrequentPattern(results);
+        CommonSlots res=new CommonSlots();
+        res.commonReferences=bestSlot.getPattern();
+        res.solts=bestSlot.getReferencesList();
+        return res;
+        
+    }
+    
+    public static String integerListToCMSPAMString(List<Integer> in){
+        StringBuilder str=new StringBuilder();
+        if(in==null || in.isEmpty())
+            return null;
+        in.stream().forEach(x->str.append(x).append(" -1 "));
+        str.append("-2");
+        return str.toString();
     }
 }

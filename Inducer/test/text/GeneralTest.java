@@ -6,6 +6,8 @@
 
 package text;
 
+import datastructure.CommonSlots;
+import datastructure.Slot;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -62,27 +64,18 @@ public class GeneralTest {
         System.out.println("intersect");
         List<List<Integer>> input = new ArrayList<>();
         
-        List<Integer> l1=new ArrayList<>();
-        List<Integer> l2=new ArrayList<>();
-        List<Integer> l3=new ArrayList<>();
-        List<Integer> l4=new ArrayList<>();
-        List<Integer> l5=new ArrayList<>();
+        List<Integer> slot1=Arrays.asList(6,7,8,9,10,11,12,13);
+        List<Integer> slot2=Arrays.asList(1,2,3,4,5,10,11,12,13);
+        List<Integer> slot3=Arrays.asList(1,2,3,4,5,6,7,8,9);
         
+        List<List<Integer>> ll=Arrays.asList(slot1,slot2,slot3);
         
-        l1.add(1);l1.add(2);l1.add(3);l1.add(4);l1.add(5);l1.add(6);l1.add(8);
-        l2.add(1);l2.add(2);l2.add(3);l2.add(6);l2.add(7);l2.add(8);l2.add(10);l2.add(11);l2.add(12);l2.add(13);
-        l3.add(2);l3.add(3);l3.add(4);l3.add(6);
-        l4.add(3);l4.add(4);l4.add(5);l4.add(6);l4.add(7);l4.add(8);
-        l5.add(1);l5.add(2);l5.add(3);l5.add(6);
-        input.add(l1);
-        input.add(l2);
-        input.add(l3);
-        input.add(l4);
-        input.add(l5);
+        CommonSlots cs= General.intersect(ll);
         
-        List<Integer> res=new ArrayList<>();
-        res.add(3);res.add(6);
-        //assertEquals(res, General.intersect(input));
+        assertEquals(5,cs.commonReferences.size());
+        assertEquals(Arrays.asList(1,2,3,4,5),cs.commonReferences);
+        assertEquals(2,cs.solts.size());
+        assertEquals(Arrays.asList(1,2), cs.solts);
         }
 
     /**
@@ -159,6 +152,34 @@ public class GeneralTest {
         assertEquals(Arrays.asList(4,5,6,7,8,9), r2.get(2));
         
         
+    }
+
+    /**
+     * Test of findCommonReferencesSlots method, of class General.
+     */
+    @Test
+    public void testFindCommonReferencesSlots() {
+        System.out.println("findCommonReferencesSlots");
+        List<Slot> slots = null;
+        CommonSlots expResult = null;
+//        CommonSlots result = General.findCommonReferencesSlots(slots);
+//       assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+//        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of integerListToCMSPAMString method, of class General.
+     */
+    @Test
+    public void testIntegerListToCMSPAMString() {
+        System.out.println("integerListToCMSPAMString");
+        List<Integer> in = null;
+        String expResult = "";
+        String result = General.integerListToCMSPAMString(in);
+//        assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+//        fail("The test case is a prototype.");
     }
     
 }
