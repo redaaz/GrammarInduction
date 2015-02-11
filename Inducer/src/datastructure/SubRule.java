@@ -6,20 +6,23 @@
 
 package datastructure;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import text.General;
 
 /**
  *
  * @author reda
  */
 public class SubRule extends Rule {
-    List<List<Integer>> alternatives;
+    List<Alternative> alternatives;
     
     public SubRule(){
         super();
     }
     
-    public void setAlternatives(List<List<Integer>> alters){
+    public void setAlternatives(List<Alternative> alters){
         this.alternatives=alters;
     }
     
@@ -28,9 +31,9 @@ public class SubRule extends Rule {
         if(this.alternatives.isEmpty())
             return null;
         StringBuilder str=new StringBuilder();
-        alternatives.stream().forEach(li-> {     
+        alternatives.stream().forEach(alt-> {     
             StringBuilder subStr=new StringBuilder();
-            li.stream().forEach(i-> subStr.append(i).append(" "));
+            subStr.append(alt.toStringCode());
             str.append(subStr).append(" | ");
         } );
         return str.substring(0, str.length()-3);
@@ -41,11 +44,20 @@ public class SubRule extends Rule {
         if(this.alternatives.isEmpty())
             return null;
         StringBuilder str=new StringBuilder();
-        alternatives.stream().forEach(li -> {
+        alternatives.stream().forEach(alt -> {
             StringBuilder str1=new StringBuilder();
-            li.stream().forEach(i-> str1.append(WordsDictionary.getWord(i)).append(" "));
+            str1.append(alt.toString());
             str.append(str1).append(" | ");
         });
         return str.substring(0, str.length()-3);
+    }    
+    
+    public static SubRule makeSubRule(Slot slot){
+        if(slot==null)
+            return null;
+        SubRule sb=new SubRule();
+        sb.setAlternatives(slot.alternatives);
+        sb.setReferencesIndexs(slot.getReferenceIndexs());
+        return sb;
     }
 }
