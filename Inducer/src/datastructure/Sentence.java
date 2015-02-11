@@ -60,7 +60,7 @@ public class Sentence {
     //returns coded words (words indexs) with additional whitespace at end
     public String toCodeString(){
         String res="";
-        res = sentenceCode.stream().map((i) -> ""+i+" ").reduce(res, String::concat);
+        res = sentenceCode.stream().map((i) -> ""+i+delimiter).reduce(res, String::concat);
         return res;
     }
     

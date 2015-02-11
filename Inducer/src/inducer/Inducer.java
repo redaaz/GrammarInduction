@@ -6,15 +6,14 @@
 
 package inducer;
 
+import datastructure.Alternative;
 import datastructure.FrequentPattern;
 import datastructure.MainRule;
 import datastructure.Rule;
 import datastructure.Sentence;
 import datastructure.SubRule;
-import datastructure.WordsDictionary;
 import heuristic.LongestMostFrequent;
 import heuristic.MostCohesiveLongest;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import spm.spam.AlgoCMSPAM;
@@ -34,7 +33,7 @@ public class Inducer {
         
         // TODO code application logic here
         //this code is JUST to test
-        List<Sentence> test=new ArrayList<>();
+        List<Sentence> test;
         Sentence s1=new Sentence("h1 h2 h9 h10 h6 h3 h4 h8");
         Sentence s2=new Sentence("h2 h3 h5 h1");
         Sentence s3=new Sentence("h1 h3 h5 h2 h7");
@@ -46,20 +45,16 @@ public class Inducer {
         test = Arrays.asList(s1,s2,s3,s4,s5,s6,s7);
         
         AlgoCMSPAM aa=new AlgoCMSPAM();
-        WordsDictionary gtt=new WordsDictionary();
         
         List<FrequentPattern> result= aa.runAlgorithm(test, 0.4);
         
-        for(FrequentPattern fp:result){
-            fp.println();
-        }
+        result.stream().forEach((fp) -> { fp.println(); });
         
         LongestMostFrequent lmf=new LongestMostFrequent();
         FrequentPattern bsetFI1=lmf.chooseFrequentPattern(result);
         
         MostCohesiveLongest js=new MostCohesiveLongest(aa.verticalDB);
         FrequentPattern bsetFI2=js.chooseFrequentPattern(result);
-        
         
         System.out.println("LongestMostFrequent");
         bsetFI1.println();
@@ -74,9 +69,12 @@ public class Inducer {
         System.out.println(rr.toString());
         
         SubRule rr1=new SubRule();
-        rr1.setAlternatives(Arrays.asList(Arrays.asList(1,3,5),Arrays.asList(2,4,6,0),Arrays.asList(6,7,8)));
+        rr1.setAlternatives(Arrays.asList(new Alternative(Arrays.asList(1,2,3),0),new Alternative(Arrays.asList(4,5,6,7),0),new Alternative(Arrays.asList(7,4,6),0)));
         
         System.out.println(rr1.toString());
+        
+        //SubRule.makeRules(test, bsetFI2);
+        Rule.makeRules(test, bsetFI2);
         
         int i=9+0;
     }

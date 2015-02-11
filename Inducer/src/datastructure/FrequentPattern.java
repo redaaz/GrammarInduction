@@ -20,13 +20,13 @@ import text.General;
  * @author reda
  */
 public class FrequentPattern {
-    List<Integer> pattern;
+    List<Integer> patterns;
     int sup;
     List<Integer> inputReferences;
     double cohesion; // calculated by Jaccard index (law)
     
     public FrequentPattern(){
-        pattern = new ArrayList<>();
+        patterns = new ArrayList<>();
         inputReferences=new ArrayList<>();
         sup=0;
         this.cohesion=-1;
@@ -35,29 +35,29 @@ public class FrequentPattern {
     public FrequentPattern(List<Integer> in,int supp){
         this.sup=supp;
         inputReferences=new ArrayList<>();
-        pattern = new ArrayList<>();
-        pattern = in;
+        patterns = new ArrayList<>();
+        patterns = in;
         this.cohesion=-1;
     }
     //take string from CMSPAM format "number -1 number -1 .... -1 -2"
     public FrequentPattern(String x){
         //check for null or empty string
         if(x==null || x.isEmpty()){
-            pattern = null;
+            patterns = null;
             sup=-1;
             return;
         }   
         String[] parts=x.split("SUP: ");
         //check for parsing error
         if(parts.length!=2){
-            pattern = null;
+            patterns = null;
             sup=-1;
             return;
         }
         
         //set sup value
         if(!General.tryParseInt(parts[1])){
-            pattern=null;
+            patterns=null;
             sup=-1;
             return;
         }
@@ -65,16 +65,16 @@ public class FrequentPattern {
             sup=Integer.parseInt(parts[1]);
         }
         this.cohesion=-1;
-        pattern = new ArrayList<>();
+        patterns = new ArrayList<>();
         String[] Indexes= parts[0].split(" -1 ");
         
         for(String str: Indexes){
             boolean valid=General.tryParseInt(str);
             if(!str.isEmpty() && valid){
-                pattern.add(Integer.parseInt(str));        
+                patterns.add(Integer.parseInt(str));        
             }
             if(!valid){
-                pattern=null;
+                patterns=null;
                 sup=-1;
                 return;
             }
@@ -85,14 +85,14 @@ public class FrequentPattern {
     
     @Override
     public String toString(){
-        if(pattern==null)
+        if(patterns==null)
             return null;
-        if(pattern.isEmpty())
+        if(patterns.isEmpty())
             return "";
         
         String res="";
         
-        res = pattern.stream().filter((index) -> (WordsDictionary.isExist((int)index))).map((index) -> WordsDictionary.getWord(index)+" ").reduce(res, String::concat);
+        res = patterns.stream().filter((index) -> (WordsDictionary.isExist((int)index))).map((index) -> WordsDictionary.getWord(index)+" ").reduce(res, String::concat);
         
         return res;
     }
@@ -103,11 +103,11 @@ public class FrequentPattern {
     
     public String toStringCode(){
         String res="";
-        if(pattern==null)
+        if(patterns==null)
             return null;
-        if(pattern.isEmpty())
+        if(patterns.isEmpty())
             return "";
-        res= pattern.stream().map((i) -> ""+i+" ").reduce(res, String::concat);
+        res= patterns.stream().map((i) -> ""+i+" ").reduce(res, String::concat);
         return res;
     }
     
@@ -123,12 +123,12 @@ public class FrequentPattern {
     //@param vdb is the vertical data base used in CMSPAM the algorithm
     //required: sup value 
     public void setCohesion(Map<Integer,Bitmap> vdb){
-        if (this.pattern.size()<=1){
+        if (this.patterns.size()<=1){
             this.cohesion=0;//to be discussed
             return;
         }
         Set<Integer> set = new HashSet<>();
-        for(Integer pp:this.pattern){
+        for(Integer pp:this.patterns){
             set.addAll(((Bitmap)vdb.get(pp)).inputReferences.stream().map(X -> X.inputSentenceID).collect(Collectors.toList()));
         }
         if(set.isEmpty())
@@ -141,7 +141,7 @@ public class FrequentPattern {
     }
     
     public List<Integer> getPattern(){
-        return this.pattern;
+        return this.patterns;
     }
     
     public void printReferencesList(){
@@ -192,7 +192,7 @@ public class FrequentPattern {
         List<Integer> res=new ArrayList<>();
         
         for(Integer i: res1){
-            if (General.ContainsSequence(this.pattern,General.toIntegerList(in.get(i).toStringCM_SPAM())))
+            if (General.ContainsSequence(this.patterns,General.toIntegerList(in.get(i).toStringCM_SPAM())))
                res.add(i);       
         }
         return res;
