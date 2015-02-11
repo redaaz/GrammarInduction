@@ -6,6 +6,7 @@
 
 package datastructure;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,5 +17,9 @@ public class CommonSlots {
     public List<Integer> commonReferences;
     public List<Integer> solts;
     
+    public CommonSlots(){
+     this.commonReferences=new ArrayList<>();
+     this.solts=new ArrayList<>();
+    }
     
 }

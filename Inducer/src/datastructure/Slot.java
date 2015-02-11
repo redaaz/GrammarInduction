@@ -7,7 +7,9 @@
 package datastructure;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -52,5 +54,9 @@ public class Slot {
     
     public boolean isEmpty(){
         return this.alternatives.isEmpty();
+    }
+    
+    public List<Alternative> getAlternatives(List<Integer> indexs){
+        return this.alternatives.stream().filter(x->indexs.contains(x.referenceIndex)).collect(Collectors.toList());
     }
 }

@@ -61,6 +61,7 @@ public class GeneralTest {
      */
     @Test
     public void testIntersect() {
+        double minSup=0.4;
         System.out.println("intersect");
         List<List<Integer>> input = new ArrayList<>();
         
@@ -70,12 +71,24 @@ public class GeneralTest {
         
         List<List<Integer>> ll=Arrays.asList(slot1,slot2,slot3);
         
-        CommonSlots cs= General.intersect(ll);
+        CommonSlots cs= General.intersect(ll,minSup);
         
         assertEquals(5,cs.commonReferences.size());
         assertEquals(Arrays.asList(1,2,3,4,5),cs.commonReferences);
         assertEquals(2,cs.solts.size());
         assertEquals(Arrays.asList(1,2), cs.solts);
+        
+        List<Integer> slot4=Arrays.asList(6,7,8,9,10,11,12,13);
+        List<Integer> slot5=Arrays.asList(1,2);
+        List<Integer> slot6=Arrays.asList(3,4,5);
+        
+        List<List<Integer>> ll2=Arrays.asList(slot4,slot5,slot6);
+        cs= General.intersect(ll2,minSup);
+        
+        assertEquals(0,cs.commonReferences.size());
+        assertEquals(Arrays.asList(),cs.commonReferences);
+        assertEquals(0,cs.solts.size());
+        assertEquals(Arrays.asList(), cs.solts);
         }
 
     /**

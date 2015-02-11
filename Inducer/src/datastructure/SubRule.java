@@ -53,12 +53,13 @@ public class SubRule extends Rule {
         return str.substring(0, str.length()-3);
     }    
     
-    public static SubRule makeSubRule(Slot slot){
+    public static SubRule makeSubRule(Slot slot,List<Integer> referencesList){
         if(slot==null)
             return null;
         SubRule sb=new SubRule();
-        sb.setAlternatives(slot.alternatives);
-        sb.setReferencesIndexs(slot.getReferenceIndexs());
+        List<Alternative> alts=slot.getAlternatives(referencesList);
+        sb.setAlternatives(alts);
+        sb.setReferencesIndexs(referencesList);
         return sb;
     }
 }

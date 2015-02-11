@@ -13,10 +13,13 @@ import heuristic.MostFrequentLongest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import spm.spam.AlgoCMSPAM;
 
 
@@ -117,21 +120,28 @@ public class General {
         return res;
     }
     
-    public static CommonSlots findCommonReferencesSlots(List<Slot> slots){
+    public static CommonSlots findCommonReferencesSlots(HashMap<Integer,List<Integer>> referenceToSlots,double minSup){
         List<List<Integer>> in=new ArrayList<>();
-        slots.stream().map(x->in.add(x.getReferenceIndexs()));
-        CommonSlots cs=intersect(in);
+        HashMap<Integer,Integer> tempIndexsToinputIndexs=new HashMap<>();
+        Iterator it = referenceToSlots.entrySet().iterator();
+        while(it.hasNext()){
+             HashMap.Entry pairs = (HashMap.Entry)it.next();
+             in.add((List<Integer>)pairs.getValue());
+             tempIndexsToinputIndexs.put(in.size()-1, (Integer)pairs.getKey());
+        }
+        
+        CommonSlots cs=intersect(in,minSup,tempIndexsToinputIndexs);
         return cs;
     }
     
     //lists: list of references (input indexs for each slot)
     //this function find the best intersection between slots to build new rules
-    static CommonSlots intersect(List<List<Integer>> lists){
+    static CommonSlots intersect(List<List<Integer>> lists,double minSup, HashMap<Integer,Integer> tempIndexsToinputIndexs){
         if(lists==null || lists.isEmpty())
             return null;
         if(lists.size()==1){
             CommonSlots res=new CommonSlots();
-            res.commonReferences=lists.get(0);
+            res.commonReferences= lists.get(0);
             res.solts=Arrays.asList(0);
             return res;
         }
@@ -139,15 +149,17 @@ public class General {
         lists.stream().forEach(li->input.add(integerListToCMSPAMString(li)));
         //find best slots set to build new rules
         AlgoCMSPAM algo=new AlgoCMSPAM();
-        List<FrequentPattern> results= algo.runAlgorithm2(input, 0.4);
+        List<FrequentPattern> results= algo.runAlgorithm2(input, minSup);
         MostFrequentLongest mfl=new MostFrequentLongest();
-        // pattern here: is common references between slots
-        // sentences here: each slot(references list) is an input sentence 
-        // references here: is chosen slot's ids to build new rules
+        // pattern here: is common slots between references
+        // sentences here: each reference(slots list) is an input sentence 
+        // references here: is chosen reference's ids to build new rules
         FrequentPattern bestSlot=mfl.chooseFrequentPattern(results);
+        if(bestSlot==null)
+            return new CommonSlots();
         CommonSlots res=new CommonSlots();
-        res.commonReferences=bestSlot.getPattern();
-        res.solts=bestSlot.getReferencesList();
+        res.commonReferences=bestSlot.getReferencesList().stream().map(x->tempIndexsToinputIndexs.get(x)).collect(Collectors.toList());
+        res.solts=bestSlot.getPattern();
         return res;
         
     }
@@ -155,7 +167,7 @@ public class General {
     public static String integerListToCMSPAMString(List<Integer> in){
         StringBuilder str=new StringBuilder();
         if(in==null || in.isEmpty())
-            return null;
+            return "-2";
         in.stream().forEach(x->str.append(x).append(" -1 "));
         str.append("-2");
         return str.toString();
