@@ -150,6 +150,43 @@ public class AlgoCMSPAM {
         return res;
     }
 
+    public List<FrequentPattern> runAlgorithm2(List<String> input, double minsupRel) {
+        Bitmap.INTERSECTION_COUNT = 0;
+        // create an object to write the file
+        
+        /////////writer = new BufferedWriter(new FileWriter(outputFilePath));
+        List<String> strRes=new ArrayList<>();
+        // initialize the number of patterns found
+        patternCount = 0;
+        // to log the memory used
+        MemoryLogger.getInstance().reset();
+
+        // record start time
+        startTime = System.currentTimeMillis();
+        // RUN THE ALGORITHM
+        spam2(input, minsupRel, strRes);
+        // record end time
+        endTime = System.currentTimeMillis();
+        // close the file
+        /////////writer.close();
+        List<FrequentPattern> res=new ArrayList<>();
+        for(String str:strRes){
+            FrequentPattern x=new FrequentPattern(str);
+            
+            List<List<Repetition>> ref=new ArrayList<>();
+            
+            for(int i:x.getPattern()){
+                ref.add(this.verticalDB.get(i).inputReferences);
+            }
+            x.setInputReferences2(ref,input);
+            x.setCohesion(verticalDB);
+            res.add(x);
+        }
+        
+        
+        return res;
+    }
+
     /**
      * This is the main method for the SPAM algorithm
      *
@@ -471,6 +508,242 @@ public class AlgoCMSPAM {
             /////////while ((thisLine = reader.readLine()) != null) {
             for(Sentence thisSen: input){
                 String thisLine=thisSen.toStringCM_SPAM();
+                // split the sequence according to spaces into tokens
+                for (String token : thisLine.split(" ")) {
+                    if (token.equals("-1")) { // indicate the end of an itemset
+                        tid++;
+                    } else if (token.equals("-2")) { // indicate the end of a sequence
+//						determineSection(bitindex - previousBitIndex);  // register the sequence length for the bitmap
+                        sid++;
+                        tid = 0;
+                    } else {  // indicate an item
+                        // Get the bitmap for this item. If none, create one.
+                        Integer item = Integer.parseInt(token);
+                        Bitmap bitmapItem = verticalDB.get(item);
+                        if (bitmapItem == null) {
+                            bitmapItem = new Bitmap(lastBitIndex);
+                            verticalDB.put(item, bitmapItem);
+                        }
+                        // Register the bit in the bitmap for this item
+                        bitmapItem.registerBit(sid, tid, sequencesSize);
+                    }
+                }
+            }
+            /////////reader.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // STEP2: REMOVE INFREQUENT ITEMS FROM THE DATABASE BECAUSE THEY WILL NOT APPEAR IN ANY FREQUENT SEQUENTIAL PATTERNS
+        List<Integer> frequentItems = new ArrayList<Integer>();
+        Iterator<Entry<Integer, Bitmap>> iter = verticalDB.entrySet().iterator();
+        // we iterate over items from the vertical database that we have in memory
+        while (iter.hasNext()) {
+            //  we get the bitmap for this item
+            Map.Entry<Integer, Bitmap> entry = (Map.Entry<Integer, Bitmap>) iter.next();
+            // if the cardinality of this bitmap is lower than minsup
+            if (entry.getValue().getSupport() < minsup) {
+                // we remove this item from the database.
+                iter.remove();
+            } else {
+                // otherwise, we save this item as a frequent
+                // sequential pattern of size 1
+                savePattern2(results,entry.getKey(), entry.getValue());
+                // and we add this item to a list of frequent items
+                // that we will use later.
+                frequentItems.add(entry.getKey());
+            }
+        }
+
+        // STEP 3.1  CREATE CMAP
+        coocMapEquals = new HashMap<Integer, Map<Integer, Integer>>(frequentItems.size());
+        coocMapAfter = new HashMap<Integer, Map<Integer, Integer>>(frequentItems.size());
+
+        if (useLastPositionPruning) {
+            lastItemPositionMap = new HashMap<Integer, Short>(frequentItems.size());
+        }
+        for (int[] transaction : inMemoryDB) {
+            short itemsetCount = 0;
+
+            Set<Integer> alreadyProcessed = new HashSet<Integer>();
+            Map<Integer, Set<Integer>> equalProcessed = new HashMap<>();
+            loopI:
+            for (int i = 0; i < transaction.length; i++) {
+                Integer itemI = transaction[i];
+
+                Set equalSet = equalProcessed.get(itemI);
+                if (equalSet == null) {
+                    equalSet = new HashSet();
+                    equalProcessed.put(itemI, equalSet);
+                }
+
+                if (itemI < 0) {
+                    itemsetCount++;
+                    continue;
+                }
+//				System.out.println(itemsetCount);
+
+                // update lastItemMap
+                if (useLastPositionPruning) {
+                    Short last = lastItemPositionMap.get(itemI);
+                    if (last == null || last < itemsetCount) {
+                        lastItemPositionMap.put(itemI, itemsetCount);
+                    }
+                }
+
+                Bitmap bitmapOfItem = verticalDB.get(itemI);
+                if (bitmapOfItem == null || bitmapOfItem.getSupport() < minsup) {
+                    continue;
+                }
+
+                Set<Integer> alreadyProcessedB = new HashSet<Integer>(); // NEW
+
+                boolean sameItemset = true;
+                for (int j = i + 1; j < transaction.length; j++) {
+                    Integer itemJ = transaction[j];
+
+                    if (itemJ < 0) {
+                        sameItemset = false;
+                        continue;
+                    }
+
+                    Bitmap bitmapOfitemJ = verticalDB.get(itemJ);
+                    if (bitmapOfitemJ == null || bitmapOfitemJ.getSupport() < minsup) {
+                        continue;
+                    }
+//									if (itemI != itemJ){
+                    Map<Integer, Integer> map = null;
+                    if (sameItemset) {
+                        if (!equalSet.contains(itemJ)) {
+                            map = coocMapEquals.get(itemI);
+                            if (map == null) {
+                                map = new HashMap<Integer, Integer>();
+                                coocMapEquals.put(itemI, map);
+                            }
+                            Integer support = map.get(itemJ);
+                            if (support == null) {
+                                map.put(itemJ, 1);
+                            } else {
+                                map.put(itemJ, ++support);
+                            }
+                            equalSet.add(itemJ);
+                        }
+                    } else if (!alreadyProcessedB.contains(itemJ)) {
+                        if (alreadyProcessed.contains(itemI)) {
+                            continue loopI;
+                        }
+                        map = coocMapAfter.get(itemI);
+                        if (map == null) {
+                            map = new HashMap<Integer, Integer>();
+                            coocMapAfter.put(itemI, map);
+                        }
+                        Integer support = map.get(itemJ);
+                        if (support == null) {
+                            map.put(itemJ, 1);
+                        } else {
+                            map.put(itemJ, ++support);
+                        }
+                        alreadyProcessedB.add(itemJ); // NEW
+                    }
+                }
+                alreadyProcessed.add(itemI);
+            }
+        }
+
+        // STEP3: WE PERFORM THE RECURSIVE DEPTH FIRST SEARCH
+        // to find longer sequential patterns recursively
+
+        if (maximumPatternLength == 1) {
+            return;
+        }
+        // for each frequent item
+        for (Entry<Integer, Bitmap> entry : verticalDB.entrySet()) {
+            // We create a prefix with that item
+            Prefix prefix = new Prefix();
+            prefix.addItemset(new Itemset(entry.getKey()));
+            // We call the depth first search method with that prefix
+            // and the list of frequent items to try to find
+            // larger sequential patterns by appending some of these
+            // items.
+            dfsPruning(prefix, entry.getValue(), frequentItems, frequentItems, entry.getKey(), 2, entry.getKey(),results);
+        }
+    }
+    
+    private void spam2(List<String> input, double minsupRel,List<String> results)  {
+        // the structure to store the vertical database
+        // key: an item    value : bitmap
+        verticalDB = new HashMap<Integer, Bitmap>();
+
+        // structure to store the horizontal database
+        List<int[]> inMemoryDB = new ArrayList<int[]>();
+
+        // STEP 0: SCAN THE DATABASE TO STORE THE FIRST BIT POSITION OF EACH SEQUENCE 
+        // AND CALCULATE THE TOTAL NUMBER OF BIT FOR EACH BITMAP
+        sequencesSize = new ArrayList<Integer>();
+        lastBitIndex = 0; // variable to record the last bit position that we will use in bitmaps
+        try {
+            // read the file
+            /////////FileInputStream fin = new FileInputStream(new File(input));
+            /////////BufferedReader reader = new BufferedReader(new InputStreamReader(fin));
+            /////////String thisLine;
+            int bitIndex = 0;
+            // for each line (sequence) in the file until the end
+            /////////while ((thisLine = reader.readLine()) != null) {
+            for(String thisSen: input){
+                String thisLine=thisSen;
+                // if the line is  a comment, is  empty or is a
+                // kind of metadata
+                if (thisLine.isEmpty() == true
+                        || thisLine.charAt(0) == '#' || thisLine.charAt(0) == '%'
+                        || thisLine.charAt(0) == '@') {
+                    continue;
+                }
+
+                // record the length of the current sequence (for optimizations)
+                sequencesSize.add(bitIndex);
+                // split the sequence according to spaces into tokens
+
+                String tokens[] = thisLine.split(" ");
+                int[] transactionArray = new int[tokens.length];
+                inMemoryDB.add(transactionArray);
+
+                for (int i = 0; i < tokens.length; i++) {
+                    int item = Integer.parseInt(tokens[i]);
+                    transactionArray[i] = item;
+                    // if it is not an itemset separator
+                    if (item == -1) { // indicate the end of an itemset
+                        // increase the number of bits that we will need for each bitmap
+                        bitIndex++;
+                    }
+                }
+            }
+            // record the last bit position for the bitmaps
+            lastBitIndex = bitIndex - 1;
+            /////////reader.close(); // close the input file
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // Calculate the absolute minimum support 
+        // by multipling the percentage with the number of
+        // sequences in this database
+//		minsup = 163;
+        minsup = (int) Math.ceil((minsupRel * sequencesSize.size()));
+        if (minsup == 0) {
+            minsup = 1;
+        }
+
+        // STEP1: SCAN THE DATABASE TO CREATE THE BITMAP VERTICAL DATABASE REPRESENTATION
+        try {
+            /////////FileInputStream fin = new FileInputStream(new File(input));
+            /////////BufferedReader reader = new BufferedReader(new InputStreamReader(fin));
+            /////////String thisLine;
+            int sid = 0; // to know which sequence we are scanning
+            int tid = 0;  // to know which itemset we are scanning
+
+            // for each line (sequence) from the input file
+            /////////while ((thisLine = reader.readLine()) != null) {
+            for(String thisSen: input){
+                String thisLine=thisSen;
                 // split the sequence according to spaces into tokens
                 for (String token : thisLine.split(" ")) {
                     if (token.equals("-1")) { // indicate the end of an itemset

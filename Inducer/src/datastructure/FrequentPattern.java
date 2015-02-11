@@ -119,6 +119,10 @@ public class FrequentPattern {
     public void setInputReferences(List<List<Repetition>> input,List<Sentence> in ){
         this.inputReferences=intersect(input,in);
     }
+    
+    public void setInputReferences2(List<List<Repetition>> input,List<String> in ){
+        this.inputReferences=intersect2(input,in);
+    }
     //to calc cohesion by Jaccard index law i.e.: intersection(11)/union (10||01||11)
     //@param vdb is the vertical data base used in CMSPAM the algorithm
     //required: sup value 
@@ -151,7 +155,11 @@ public class FrequentPattern {
          System.out.println();
     }
     
-    public String getReferencesList(){
+    public List<Integer> getReferencesList(){
+        return this.inputReferences;
+    }
+    
+    public String toStringReferencesList(){
         String res="";
         res = this.inputReferences.stream().map((i) -> (""+i+" ")).reduce(res, String::concat);
         return res;
@@ -167,8 +175,6 @@ public class FrequentPattern {
     }
     
     public  List<Integer> intersect(List<List<Repetition>> input,List<Sentence> in){
-        
-        
         //choose smallest set to optimaize the intersection
         int minListSizeIndex=-1;
         int minListSize=Integer.MAX_VALUE;
@@ -198,8 +204,38 @@ public class FrequentPattern {
         return res;
     }
     
+    public List<Integer> intersect2(List<List<Repetition>> input,List<String> in1){
+        //choose smallest set to optimaize the intersection
+        int minListSizeIndex=-1;
+        int minListSize=Integer.MAX_VALUE;
+        for(int i=0;i<input.size();i++){
+            if(!input.get(i).isEmpty()&& input.get(i).size()<minListSize){
+                minListSizeIndex=i;
+                minListSize=input.get(i).size();
+            }        
+        }
+        
+        Set<Integer> uniqueNums = new HashSet<>(input.get(minListSizeIndex).stream()
+        .map(x->x.inputSentenceID).collect(Collectors.toList()));
+        
+        for(int i=0;i<input.size();i++){
+            if(i!=minListSizeIndex)
+                uniqueNums.retainAll(new HashSet<>(input.get(i).stream()
+        .map(x->x.inputSentenceID).collect(Collectors.toList())));
+        }
+        
+        List<Integer> res1=new ArrayList<>(uniqueNums);
+        List<Integer> res=new ArrayList<>();
+        
+        for(Integer i: res1){
+            if (General.ContainsSequence(this.patterns,General.toIntegerList(in1.get(i))))
+               res.add(i);       
+        }
+        return res;
+    }
+    
     public void println(){
-        System.out.println(this.toString()+" ("+this.sup+") "+this.getReferencesList());
+        System.out.println(this.toString()+" ("+this.sup+") "+this.toStringReferencesList());
     }
 
     public int getSup(){

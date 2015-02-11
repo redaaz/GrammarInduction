@@ -20,6 +20,7 @@ public class SubRule extends Rule {
     
     public SubRule(){
         super();
+        this.alternatives=new ArrayList<>();
     }
     
     public void setAlternatives(List<Alternative> alters){

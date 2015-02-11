@@ -81,13 +81,8 @@ public class Rule {
             }
         });
         
-        for(Slot slot:slots){
-            if(!slot.isEmpty()){
-                SubRule sb=SubRule.makeSubRule(slot);
-                sb.println();
-                sb.printlnCoded();
-            }
-        }
+        CommonSlots cslots = General.findCommonReferencesSlots(slots);
+        
         
         
         return null;
