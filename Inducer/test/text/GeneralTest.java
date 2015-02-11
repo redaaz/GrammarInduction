@@ -122,5 +122,43 @@ public class GeneralTest {
         result = General.ContainsSequence(l6, l2);
         assertEquals(false, result);
     }
+
+    /**
+     * Test of toIntegerList method, of class General.
+     */
+    @Test
+    public void testToIntegerList() {
+        System.out.println("toIntegerList");
+        String x = "";
+        
+    }
+
+    /**
+     * Test of split method, of class General.
+     */
+    @Test
+    public void testSplit() {
+        System.out.println("split");
+        List<Integer> toSplit = Arrays.asList(1,2,3,4,5,6,7,8,9);
+        List<Integer> splitters = Arrays.asList(3,6,8);
+        
+        List<List<Integer>> result = General.split(toSplit, splitters);
+        assertEquals(4,result.size());
+        assertEquals(Arrays.asList(1,2), result.get(0));
+        assertEquals(Arrays.asList(4,5), result.get(1));
+        assertEquals(Arrays.asList(7), result.get(2));
+        assertEquals(Arrays.asList(9), result.get(3));
+        
+        
+        
+        List<Integer> splitters2 = Arrays.asList(2,3);
+        List<List<Integer>> r2 = General.split(toSplit, splitters2);
+        assertEquals(3,r2.size());
+        assertEquals(Arrays.asList(1), r2.get(0));
+        assertEquals(Arrays.asList(), r2.get(1));
+        assertEquals(Arrays.asList(4,5,6,7,8,9), r2.get(2));
+        
+        
+    }
     
 }

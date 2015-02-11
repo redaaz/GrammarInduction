@@ -77,4 +77,35 @@ public class General {
         
         return res;
     }
+    
+    //to siplit an integer list by splitters -returning n+1 lists of slots between splitters (sometimes empty lists added)
+    public static List<List<Integer>> split(List<Integer> toSplit,List<Integer> splitters){
+        List<List<Integer>> res=new ArrayList<>();
+        if(toSplit.isEmpty() || splitters.isEmpty())
+            return null;
+        int lastIndex=0;
+        int index=0;
+        
+        for(Integer sp:splitters){    
+            while(!Objects.equals(toSplit.get(index), sp)){
+                index++;
+            }
+            if(lastIndex==index){
+                res.add(new ArrayList<>());
+            }
+            else{
+                res.add(toSplit.subList(lastIndex, index));    
+            }   
+            index++;
+            lastIndex=index;
+        }
+        //the last list
+        if(index==toSplit.size()){
+            res.add(new ArrayList<>());
+        }
+        else{
+           res.add(toSplit.subList(index, toSplit.size()));     
+        }
+        return res;
+    }
 }
