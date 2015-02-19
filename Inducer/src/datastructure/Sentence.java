@@ -8,6 +8,7 @@ package datastructure;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  *
@@ -68,5 +69,27 @@ public class Sentence {
         String res="";
         res = sentenceCode.stream().map((i) -> ""+i+" -1 ").reduce(res, String::concat);
         return res+"-2";
+    }
+    
+    @Override
+    public boolean equals(Object aThat) {
+        Sentence that=(Sentence)aThat;
+        if(this.sentenceCode.size()!=that.sentenceCode.size())
+            return false;
+        for(int i=0;i<this.sentenceCode.size();i++){
+            if(!Objects.equals(this.sentenceCode.get(i), that.sentenceCode.get(i)))
+                return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        return hash;
+    }
+    
+    public void println(){
+        System.out.println(this.toString());
     }
 }

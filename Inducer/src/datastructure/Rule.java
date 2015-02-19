@@ -17,7 +17,7 @@ import text.General;
  * @author reda
  */
 public class Rule {
-    
+    protected RuleType ruletype;
     protected static Integer idCounter=0;
     protected Integer ruleID;
     protected String leftSide;
@@ -32,6 +32,10 @@ public class Rule {
     
     public void setReferencesIndexs(List<Integer> ref){
         this.referencesIndexs=ref;
+    }
+    
+    public List<Integer> getReferencesIndexs(){
+        return this.referencesIndexs;
     }
     
     public String getCodedRightSide(){
@@ -118,6 +122,10 @@ public class Rule {
                 }
             }
         }
+    }
+    
+    public RuleType getRuleType(){
+        return null;
     }
     
 }

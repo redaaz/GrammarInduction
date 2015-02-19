@@ -8,6 +8,8 @@ package text;
 
 import datastructure.CommonSlots;
 import datastructure.FrequentPattern;
+import datastructure.Rule;
+import datastructure.Sentence;
 import datastructure.Slot;
 import heuristic.Heuristic;
 import heuristic.LongestMostFrequent;
@@ -142,38 +144,6 @@ public class General {
         return null;
     }
     
-    //lists: list of slots for each input indexs
-    //tempIndexsToinputIndexs: to convert from 0-based indexs sentences to global indexs
-    //this function find the best intersection between slots to build new rules 
-    /*
-    static CommonSlots intersect(List<List<Integer>> lists,SPMiningAlgorithm algo,Heuristic heu,double minSup,HashMap<Integer,Integer> tempIndexsToinputIndexs){
-        if(lists==null || lists.isEmpty())
-            return null;
-        if(lists.size()==1){ //to be discussed later
-            CommonSlots res=new CommonSlots();
-            res.commonReferences= lists.get(0);
-            res.slots=Arrays.asList(0);
-            return res;
-        }
-        List<String> input=new ArrayList<>();
-        lists.stream().forEach(li->input.add(integerListToCMSPAMString(li)));
-        //find best slots set to build new rules
-        
-        List<FrequentPattern> results= algo.runAlgorithm2(input, minSup);
-        
-        // pattern here: is common slots between references
-        // sentences here: each reference(slots list) is an input sentence 
-        // references here: is chosen reference's ids to build new rules
-        FrequentPattern bestSlot=heu.chooseFrequentPattern(results);
-        if(bestSlot==null)
-            return new CommonSlots();
-        CommonSlots res=new CommonSlots();
-        res.commonReferences=bestSlot.getReferencesList().stream().map(x->tempIndexsToinputIndexs.get(x)).collect(Collectors.toList());
-        res.slots=bestSlot.getPattern();
-        return res;
-        
-    }
-    */
     //lists: list of slots for each input indexs
     //tempIndexsToinputIndexs: to convert from 0-based indexs sentences to global indexs
     //this function find the best intersection between slots to build new rules (longest - most frequent)

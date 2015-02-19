@@ -21,6 +21,7 @@ public class SubRule extends Rule {
     public SubRule(){
         super();
         this.alternatives=new ArrayList<>();
+        this.ruletype=RuleType.Sub;
     }
     
     public void setAlternatives(List<Alternative> alters){
@@ -52,6 +53,11 @@ public class SubRule extends Rule {
         });
         return str.substring(0, str.length()-3);
     }    
+    
+    @Override
+    public RuleType getRuleType(){
+        return this.ruletype;
+    }
     
     public static SubRule makeSubRule(Slot slot,CommonSlots cSlots){
         if(slot==null)

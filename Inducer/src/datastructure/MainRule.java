@@ -26,6 +26,7 @@ public class MainRule extends Rule {
         this.elements=new ArrayList<>();
         this.relatedSubRules=new ArrayList<>();
         this.activeSlotIDs=new ArrayList<>();
+        this.ruletype=RuleType.Main;
     }
     
     @Override
@@ -83,4 +84,13 @@ public class MainRule extends Rule {
         return mr;
     }
     
+    @Override
+    public RuleType getRuleType(){
+        return this.ruletype;
+    }
+    
+    public Sentence toSentence(){
+        Sentence res=new Sentence(this.leftSide);
+        return res;
+    }
 }
