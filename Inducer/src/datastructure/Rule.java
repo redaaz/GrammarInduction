@@ -86,21 +86,38 @@ public class Rule {
             }
         });
         
-        CommonSlots cslots = General.findCommonReferencesSlots(referencesBesedtoSlots,minSup);
+        double minimumSupport=referencesBesedtoSlots.size()*minSup;
+        CommonSlots cslots = General.findCommonReferencesSlots(referencesBesedtoSlots,minimumSupport);
         
-        while(cslots!=null && !cslots.solts.isEmpty()){
+        while(cslots!=null && !cslots.slots.isEmpty()){
             List<SubRule> tempNewSubRules=new ArrayList<>();
-            for(Integer slotID: cslots.solts){
-                SubRule newSR = SubRule.makeSubRule(slots.get(slotID),cslots.commonReferences);
+            for(Integer slotID: cslots.slots){
+                SubRule newSR = SubRule.makeSubRule(slots.get(slotID),cslots);
                 tempNewSubRules.add(newSR);
-                newSR.println();
             }
-            //TODO: complete the impelentation
-            cslots = General.findCommonReferencesSlots(referencesBesedtoSlots,minSup);
+            //1-make main rule
+            MainRule newMR = MainRule.makeMainRule(tempNewSubRules, fp, cslots);
+            //2-add new rules
+            tempNewSubRules.stream().forEach(x->rules.add(x));
+            rules.add(newMR);
+            //3-do some changes
+            updateReferencesBesedtoSlotsHashMap(newMR,referencesBesedtoSlots);
+            
+            cslots = General.findCommonReferencesSlots(referencesBesedtoSlots,minimumSupport);
         }
-        
-        
-        return null;
+
+        return rules;
+    }
+    
+    public static void updateReferencesBesedtoSlotsHashMap(MainRule mr,HashMap<Integer,List<Integer>> referencesBesedtoSlotsMap){
+        for(Integer i: mr.referencesIndexs){
+            if(referencesBesedtoSlotsMap.get(i)!=null){
+                referencesBesedtoSlotsMap.get(i).removeAll(mr.activeSlotIDs);
+                if(referencesBesedtoSlotsMap.get(i).isEmpty()){
+                    referencesBesedtoSlotsMap.remove(i);
+                }
+            }
+        }
     }
     
 }
