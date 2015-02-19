@@ -17,6 +17,8 @@ import heuristic.MostCohesiveLongest;
 import java.util.Arrays;
 import java.util.List;
 import spm.spam.AlgoCMSPAM;
+import spm.spam.AlgoSPAM;
+import spm.spam.SPMiningAlgorithm;
 
 
 /**
@@ -44,37 +46,30 @@ public class Inducer {
         
         test = Arrays.asList(s1,s2,s3,s4,s5,s6,s7);
         
-        AlgoCMSPAM aa=new AlgoCMSPAM();
-        
+        SPMiningAlgorithm aa=new AlgoCMSPAM();
+        //(1) find frequent patterns
         List<FrequentPattern> result= aa.runAlgorithm(test, 0.4);
+        //result.stream().forEach((fp) -> { fp.println(); });
         
-        result.stream().forEach((fp) -> { fp.println(); });
-        
+        //(2) find best frequent pattern
         LongestMostFrequent lmf=new LongestMostFrequent();
         FrequentPattern bsetFI1=lmf.chooseFrequentPattern(result);
         
         MostCohesiveLongest js=new MostCohesiveLongest(aa.verticalDB);
         FrequentPattern bsetFI2=js.chooseFrequentPattern(result);
         
-        System.out.println("LongestMostFrequent");
-        bsetFI1.println();
+        //System.out.println("LongestMostFrequent");
+        //bsetFI1.println();
         
-        System.out.println("MostCohesiveLongest");
-        bsetFI2.println();
-        System.out.println(js.getMaxSim());
+        //System.out.println("MostCohesiveLongest");
+        //bsetFI2.println();
+        //System.out.println(js.getMaxSim());
         
-        //MainRule rr=new MainRule();
-        //rr.setElements(Arrays.asList(1,3,5,7,9));
+        //(3) make rules
+        System.out.println("-------");
+        List<Rule> rrrr=Rule.makeRules(test, bsetFI2,0.01);
+        rrrr.stream().forEach(aa1->aa1.println());
         
-        //System.out.println(rr.toString());
-        
-        //SubRule rr1=new SubRule();
-        //rr1.setAlternatives(Arrays.asList(new Alternative(Arrays.asList(1,2,3),0),new Alternative(Arrays.asList(4,5,6,7),0),new Alternative(Arrays.asList(7,4,6),0)));
-        
-        //System.out.println(rr1.toString());
-        
-        //SubRule.makeRules(test, bsetFI2);
-        Rule.makeRules(test, bsetFI2,0.5);
         
         int i=9+0;
     }
