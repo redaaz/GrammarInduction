@@ -53,7 +53,7 @@ import spm.tools.MemoryLogger;
 *  @see Prefix 
 *  @author Philippe Fournier-Viger  & Antonio Gomariz
  */
-public class AlgoCMSPAM {
+public class AlgoCMSPAM extends SPMiningAlgorithm{
 
     // for statistics
     public long startTime;
@@ -63,8 +63,7 @@ public class AlgoCMSPAM {
     private int minsup = 0;
     // object to write to a file
     BufferedWriter writer = null;
-    // Vertical database
-    public Map<Integer, Bitmap> verticalDB = new HashMap<>();
+    
     // List indicating the number of bits per sequence
     List<Integer> sequencesSize = null;
     int lastBitIndex = 0;  // the last bit position that is used in bitmaps
@@ -113,6 +112,7 @@ public class AlgoCMSPAM {
         writer.close();
     }
     
+    @Override
     public List<FrequentPattern> runAlgorithm(List<Sentence> input, double minsupRel) {
         Bitmap.INTERSECTION_COUNT = 0;
         // create an object to write the file
@@ -150,6 +150,7 @@ public class AlgoCMSPAM {
         return res;
     }
 
+    @Override
     public List<FrequentPattern> runAlgorithm2(List<String> input, double minsupRel) {
         Bitmap.INTERSECTION_COUNT = 0;
         // create an object to write the file
