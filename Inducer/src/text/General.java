@@ -9,6 +9,8 @@ package text;
 import datastructure.CommonSlots;
 import datastructure.FrequentPattern;
 import datastructure.Slot;
+import heuristic.Heuristic;
+import heuristic.LongestMostFrequent;
 import heuristic.MostFrequentLongest;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,6 +23,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import spm.spam.AlgoCMSPAM;
+import spm.spam.SPMiningAlgorithm;
 
 
 /**
@@ -129,38 +132,107 @@ public class General {
              in.add((List<Integer>)pairs.getValue());
              tempIndexsToinputIndexs.put(in.size()-1, (Integer)pairs.getKey());
         }
-        
-        CommonSlots cs=intersect(in,minSup,tempIndexsToinputIndexs);
-        return cs;
+        AlgoCMSPAM algo=new AlgoCMSPAM();
+        Heuristic heu=new LongestMostFrequent();
+        //CommonSlots cs=intersect(in,algo,heu,minSup,tempIndexsToinputIndexs);
+        CommonSlots cs=intersect(in,tempIndexsToinputIndexs);
+        //minSup condition
+        if(cs!=null && cs.commonReferences.size()>=minSup)
+            return cs;
+        return null;
     }
     
-    //lists: list of references (input indexs for each slot)
-    //this function find the best intersection between slots to build new rules
-    static CommonSlots intersect(List<List<Integer>> lists,double minSup, HashMap<Integer,Integer> tempIndexsToinputIndexs){
+    //lists: list of slots for each input indexs
+    //tempIndexsToinputIndexs: to convert from 0-based indexs sentences to global indexs
+    //this function find the best intersection between slots to build new rules 
+    /*
+    static CommonSlots intersect(List<List<Integer>> lists,SPMiningAlgorithm algo,Heuristic heu,double minSup,HashMap<Integer,Integer> tempIndexsToinputIndexs){
         if(lists==null || lists.isEmpty())
             return null;
-        if(lists.size()==1){
+        if(lists.size()==1){ //to be discussed later
             CommonSlots res=new CommonSlots();
             res.commonReferences= lists.get(0);
-            res.solts=Arrays.asList(0);
+            res.slots=Arrays.asList(0);
             return res;
         }
         List<String> input=new ArrayList<>();
         lists.stream().forEach(li->input.add(integerListToCMSPAMString(li)));
         //find best slots set to build new rules
-        AlgoCMSPAM algo=new AlgoCMSPAM();
+        
         List<FrequentPattern> results= algo.runAlgorithm2(input, minSup);
-        MostFrequentLongest mfl=new MostFrequentLongest();
+        
         // pattern here: is common slots between references
         // sentences here: each reference(slots list) is an input sentence 
         // references here: is chosen reference's ids to build new rules
-        FrequentPattern bestSlot=mfl.chooseFrequentPattern(results);
+        FrequentPattern bestSlot=heu.chooseFrequentPattern(results);
         if(bestSlot==null)
             return new CommonSlots();
         CommonSlots res=new CommonSlots();
         res.commonReferences=bestSlot.getReferencesList().stream().map(x->tempIndexsToinputIndexs.get(x)).collect(Collectors.toList());
-        res.solts=bestSlot.getPattern();
+        res.slots=bestSlot.getPattern();
         return res;
+        
+    }
+    */
+    //lists: list of slots for each input indexs
+    //tempIndexsToinputIndexs: to convert from 0-based indexs sentences to global indexs
+    //this function find the best intersection between slots to build new rules (longest - most frequent)
+    @SuppressWarnings("empty-statement")
+    static CommonSlots intersect(List<List<Integer>> lists,HashMap<Integer,Integer> tempIndexsToinputIndexs){
+        if(lists==null || lists.isEmpty())
+            return null;
+        
+        List<String> slotsStringforEachInput= new ArrayList<>();
+        lists.stream().forEach(li->{
+           StringBuilder str=new StringBuilder();
+           li.stream().forEach(elem-> str.append(elem));
+           slotsStringforEachInput.add(str.toString());
+        });
+        
+        HashMap<String,Integer> Counter=new HashMap<>();
+        int MaxCount=0;
+        List<String> MaxString=new ArrayList<>();
+        HashMap<String,List<Integer>> refIds=new HashMap<>();
+        int IdCounter=0;
+        for(String str:slotsStringforEachInput) {
+            if(Counter.get(str)==null){
+                Counter.put(str,1);
+            }
+            else{
+                Counter.put(str, Counter.get(str)+1);
+            }
+            
+            if(Counter.get(str)>MaxCount){
+                MaxString.clear();
+                MaxString.add(str);
+                MaxCount=Counter.get(str);
+                
+            }else if(Counter.get(str)==MaxCount){
+                if(str.length()>MaxString.get(0).length())
+                    MaxString.add(0, str);
+                else
+                    MaxString.add(str);
+                
+            }
+            if(refIds.get(str)==null)
+                refIds.put(str, new ArrayList<>());
+            refIds.get(str).add(IdCounter);
+            IdCounter++;
+        };
+        
+        if(MaxString.isEmpty())
+            return null;
+        
+        //if MaxString.size()>1
+        CommonSlots res=new CommonSlots();
+        res.commonReferences=refIds.get(MaxString.get(0)).stream().map(x->tempIndexsToinputIndexs.get(x)).collect(Collectors.toList());
+        
+        res.slots=new ArrayList<>();
+        for(Character cc:MaxString.get(0).toCharArray()){
+            res.slots.add(Integer.parseInt(""+cc));
+        }
+        return res;
+        //else if ==0
         
     }
     

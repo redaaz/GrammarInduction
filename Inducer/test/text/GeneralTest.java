@@ -75,8 +75,8 @@ public class GeneralTest {
         
         assertEquals(5,cs.commonReferences.size());
         assertEquals(Arrays.asList(1,2,3,4,5),cs.commonReferences);
-        assertEquals(2,cs.solts.size());
-        assertEquals(Arrays.asList(1,2), cs.solts);
+        assertEquals(2,cs.slots.size());
+        assertEquals(Arrays.asList(1,2), cs.slots);
         
         List<Integer> slot4=Arrays.asList(6,7,8,9,10,11,12,13);
         List<Integer> slot5=Arrays.asList(1,2);
@@ -87,8 +87,8 @@ public class GeneralTest {
         
         assertEquals(0,cs.commonReferences.size());
         assertEquals(Arrays.asList(),cs.commonReferences);
-        assertEquals(0,cs.solts.size());
-        assertEquals(Arrays.asList(), cs.solts);
+        assertEquals(0,cs.slots.size());
+        assertEquals(Arrays.asList(), cs.slots);
         }
 
     /**
