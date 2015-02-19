@@ -94,6 +94,8 @@ public class Inducer {
             
         }
         
+        System.out.println("Execution time (ms): "=aa.);
+        
     }
     
 }

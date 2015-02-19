@@ -17,6 +17,10 @@ import java.util.Map;
  * @author reda
  */
 public class SPMiningAlgorithm {
+    // for statistics
+    public long startTime;
+    public long endTime;
+    public int patternCount;
     
     // Vertical database
     public Map<Integer, Bitmap> verticalDB = new HashMap<>();

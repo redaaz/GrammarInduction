@@ -58,10 +58,6 @@ import spm.tools.MemoryLogger;
 
 public class AlgoSPAM extends SPMiningAlgorithm{
 		
-	// for statistics
-	private long startTime;
-	private long endTime;
-	private int patternCount;
 	
 	// minsup
 	private int minsup = 0;

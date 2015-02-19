@@ -55,10 +55,7 @@ import spm.tools.MemoryLogger;
  */
 public class AlgoCMSPAM extends SPMiningAlgorithm{
 
-    // for statistics
-    public long startTime;
-    public long endTime;
-    public int patternCount;
+    
     // minsup
     private int minsup = 0;
     // object to write to a file
