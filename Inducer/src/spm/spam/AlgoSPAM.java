@@ -16,6 +16,9 @@ package spm.spam;
 * SPMF. If not, see <http://www.gnu.org/licenses/>.
 */
 
+import datastructure.FrequentPattern;
+import datastructure.Repetition;
+import datastructure.Sentence;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -29,7 +32,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import spm.pattern.Itemset;
 import spm.tools.MemoryLogger;
 
@@ -54,7 +56,7 @@ import spm.tools.MemoryLogger;
 * @author Philippe Fournier-Viger
  */
 
-public class AlgoSPAM{
+public class AlgoSPAM extends SPMiningAlgorithm{
 		
 	// for statistics
 	private long startTime;
@@ -66,9 +68,6 @@ public class AlgoSPAM{
 
 	// object to write to a file
 	BufferedWriter writer = null;
-	
-	// Vertical database
-	Map<Integer, Bitmap> verticalDB = new HashMap<Integer, Bitmap>();
 	
 	// List indicating the number of bits per sequence
 	List<Integer> sequencesSize = null;
@@ -108,6 +107,41 @@ public class AlgoSPAM{
 		writer.close(); 
 	}
 	
+        @Override
+        public List<FrequentPattern> runAlgorithm(List<Sentence> input, double minsupRel) {
+		// create an object to write the file
+		/////writer = new BufferedWriter(new FileWriter(outputFilePath)); 
+		// initialize the number of patterns found
+                List<String> strRes=new ArrayList<>();
+		patternCount =0; 
+		// to log the memory used
+		MemoryLogger.getInstance().reset(); 
+		
+		// record start time
+		startTime = System.currentTimeMillis(); 
+		// RUN THE ALGORITHM
+		spam(input, minsupRel,strRes); 
+		// record end time
+		endTime = System.currentTimeMillis(); 
+		// close the file
+		////writer.close();
+                
+                List<FrequentPattern> res=new ArrayList<>();
+                for(String str:strRes){
+                    FrequentPattern x=new FrequentPattern(str);
+
+                    List<List<Repetition>> ref=new ArrayList<>();
+
+                    for(int i:x.getPattern()){
+                        ref.add(this.verticalDB.get(i).inputReferences);
+                    }
+                    x.setInputReferences(ref,input);
+                    x.setCohesion(verticalDB);
+                    res.add(x);
+                }
+                return res;       
+	}
+        
 	/**
 	 * This is the main method for the SPAM algorithm
 	 * @param an input file
@@ -240,6 +274,136 @@ public class AlgoSPAM{
 			dfsPruning(prefix, entry.getValue(), frequentItems, frequentItems, entry.getKey(), 2);
 		}
 	}
+        
+        private void spam(List<Sentence> input, double minsupRel,List<String> results) {
+		// the structure to store the vertical database
+		// key: an item    value : bitmap
+		verticalDB = new HashMap<Integer, Bitmap>();
+		
+		// STEP 0: SCAN THE DATABASE TO STORE THE FIRST BIT POSITION OF EACH SEQUENCE 
+		// AND CALCULATE THE TOTAL NUMBER OF BIT FOR EACH BITMAP
+		sequencesSize = new ArrayList<Integer>();
+		lastBitIndex =0; // variable to record the last bit position that we will use in bitmaps
+		try {
+			// read the file
+			//FileInputStream fin = new FileInputStream(new File(input));
+			//BufferedReader reader = new BufferedReader(new InputStreamReader(fin));
+			//String thisLine;
+			int bitIndex =0;
+			// for each line (sequence) in the file until the end
+			for(Sentence thisSen: input){
+                                String thisLine=thisSen.toStringCM_SPAM();
+				// if the line is  a comment, is  empty or is a
+				// kind of metadata
+				if (thisLine.isEmpty() == true ||
+						thisLine.charAt(0) == '#' || thisLine.charAt(0) == '%'
+								|| thisLine.charAt(0) == '@') {
+					continue;
+				}
+				
+				// record the length of the current sequence (for optimizations)
+				sequencesSize.add(bitIndex);
+				// split the sequence according to spaces into tokens
+				for(String token:  thisLine.split(" ")){
+					// if it is not an itemset separator
+					if(token.equals("-1")){ // indicate the end of an itemset
+						// increase the number of bits that we will need for each bitmap
+						bitIndex++;
+					}
+				}
+			}
+			// record the last bit position for the bitmaps
+			lastBitIndex = bitIndex -1;
+			////reader.close(); // close the input file
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		// Calculate the absolute minimum support 
+		// by multipling the percentage with the number of
+		// sequences in this database
+		minsup = (int)Math.ceil((minsupRel * sequencesSize.size()));
+		if(minsup ==0){
+			minsup =1;
+		}
+		
+		// STEP1: SCAN THE DATABASE TO CREATE THE BITMAP VERTICAL DATABASE REPRESENTATION
+		try {
+			///FileInputStream fin = new FileInputStream(new File(input));
+			////BufferedReader reader = new BufferedReader(new InputStreamReader(fin));
+			////String thisLine;
+			int sid =0; // to know which sequence we are scanning
+			int tid =0;  // to know which itemset we are scanning
+			
+			// for each line (sequence) from the input file
+			//while ((thisLine = reader.readLine()) != null) {
+                        for(Sentence thisSen: input){
+                                String thisLine=thisSen.toStringCM_SPAM();
+				// split the sequence according to spaces into tokens
+				for(String token:  thisLine.split(" ")){
+					if(token.equals("-1")){ // indicate the end of an itemset
+						tid++;
+					}else if(token.equals("-2")){ // indicate the end of a sequence
+//						determineSection(bitindex - previousBitIndex);  // register the sequence length for the bitmap
+						sid++;
+						tid =0;
+					}else{  // indicate an item
+						// Get the bitmap for this item. If none, create one.
+						Integer item = Integer.parseInt(token);
+						Bitmap bitmapItem = verticalDB.get(item);
+						if(bitmapItem == null){
+							bitmapItem = new Bitmap(lastBitIndex);
+							verticalDB.put(item, bitmapItem);
+						}
+						// Register the bit in the bitmap for this item
+						bitmapItem.registerBit(sid, tid, sequencesSize);
+					}
+				}
+			}
+			////reader.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		// STEP2: REMOVE INFREQUENT ITEMS FROM THE DATABASE BECAUSE THEY WILL NOT APPEAR IN ANY FREQUENT SEQUENTIAL PATTERNS
+		List<Integer> frequentItems = new ArrayList<Integer>();
+		Iterator<Entry<Integer, Bitmap>> iter = verticalDB.entrySet().iterator();
+		// we iterate over items from the vertical database that we have in memory
+		while (iter.hasNext()) {
+			//  we get the bitmap for this item
+			Map.Entry<Integer, Bitmap> entry = (Map.Entry<Integer, Bitmap>) iter.next();
+			// if the cardinality of this bitmap is lower than minsup
+			if(entry.getValue().getSupport() < minsup){
+				// we remove this item from the database.
+				iter.remove(); 
+			}else{
+				// otherwise, we save this item as a frequent
+				// sequential pattern of size 1
+				savePattern2(results,entry.getKey(), entry.getValue());
+				// and we add this item to a list of frequent items
+				// that we will use later.
+				frequentItems.add(entry.getKey());
+			}
+		}
+		
+		// STEP3: WE PERFORM THE RECURSIVE DEPTH FIRST SEARCH
+		// to find longer sequential patterns recursively
+		
+		if(maximumPatternLength == 1){
+			return;
+		}
+		// for each frequent item
+		for(Entry<Integer, Bitmap> entry: verticalDB.entrySet()){
+			// We create a prefix with that item
+			Prefix prefix = new Prefix();
+			prefix.addItemset(new Itemset(entry.getKey()));
+			// We call the depth first search method with that prefix
+			// and the list of frequent items to try to find
+			// larger sequential patterns by appending some of these
+			// items.
+			dfsPruning(prefix, entry.getValue(), frequentItems, frequentItems, entry.getKey(), 2,results);
+		}
+	}
 	
 	/**
 	 * This is the dfsPruning method as described in the SPAM paper.
@@ -328,6 +492,84 @@ public class AlgoSPAM{
 		// check the memory usage
 		MemoryLogger.getInstance().checkMemory();
 	}
+        
+        private void dfsPruning(Prefix prefix, Bitmap prefixBitmap, List<Integer> sn, List<Integer> in, int hasToBeGreaterThanForIStep, int m,List<String> results)  {
+//		System.out.println(prefix.toString());
+		
+		//  ======  S-STEPS ======
+		// Temporary variables (as described in the paper)
+		List<Integer> sTemp = new ArrayList<Integer>();
+		List<Bitmap> sTempBitmaps = new ArrayList<Bitmap>();
+		
+		// for each item in sn
+		for(Integer i : sn){
+			// perform the S-STEP with that item to get a new bitmap
+			Bitmap newBitmap = prefixBitmap.createNewBitmapSStep(verticalDB.get(i), sequencesSize,  lastBitIndex);
+			// if the support is higher than minsup
+			if(newBitmap.getSupport() >= minsup){
+				// record that item and pattern in temporary variables
+				sTemp.add(i); 
+				sTempBitmaps.add(newBitmap);
+			}
+		}
+		// for each pattern recorded for the s-step
+		for(int k=0; k < sTemp.size(); k++){
+			int item = sTemp.get(k);
+			// create the new prefix
+			Prefix prefixSStep = prefix.cloneSequence();
+			prefixSStep.addItemset(new Itemset(item));
+			// create the new bitmap
+			Bitmap newBitmap = sTempBitmaps.get(k);
+
+			// save the pattern to the file
+			savePattern2(results,prefixSStep, newBitmap);
+			// recursively try to extend that pattern
+			if(maximumPatternLength > m){
+				dfsPruning(prefixSStep, newBitmap, sTemp, sTemp, item, m+1,results);
+			}
+		}
+		
+		// ========  I STEPS =======
+		// Temporary variables
+		List<Integer> iTemp = new ArrayList<Integer>();
+		List<Bitmap> iTempBitmaps = new ArrayList<Bitmap>();
+		
+		// for each item in in
+		for(Integer i : in){
+			// the item has to be greater than the largest item
+			// already in the last itemset of prefix.
+			if(i > hasToBeGreaterThanForIStep){
+				
+				// Perform an i-step with this item and the current prefix.
+				// This creates a new bitmap
+				Bitmap newBitmap = prefixBitmap.createNewBitmapIStep(verticalDB.get(i), sequencesSize,  lastBitIndex);
+				// If the support is no less than minsup
+				if(newBitmap.getSupport() >= minsup){
+					// record that item and pattern in temporary variables
+					iTemp.add(i);
+					iTempBitmaps.add(newBitmap);
+				}
+			}
+		}
+		// for each pattern recorded for the i-step
+		for(int k=0; k < iTemp.size(); k++){
+			int item = iTemp.get(k);
+			// create the new prefix
+			Prefix prefixIStep = prefix.cloneSequence();
+			prefixIStep.getItemsets().get(prefixIStep.size()-1).addItem(item);
+			// create the new bitmap
+			Bitmap newBitmap = iTempBitmaps.get(k);
+			
+			// save the pattern
+			savePattern2(results,prefixIStep, newBitmap);
+			// recursively try to extend that pattern
+			if(maximumPatternLength > m){
+				dfsPruning(prefixIStep, newBitmap, sTemp, iTemp, item, m+1,results);
+			}
+		}	
+		// check the memory usage
+		MemoryLogger.getInstance().checkMemory();
+	}
 
 	/**
 	 * Save a pattern of size 1 to the output file
@@ -344,6 +586,18 @@ public class AlgoSPAM{
 		r.append(bitmap.getSupport());
 		writer.write(r.toString());
 		writer.newLine();
+	}
+        
+        private void savePattern2(List<String> results,Integer item, Bitmap bitmap) {
+		patternCount++; // increase the pattern count
+		StringBuffer r = new StringBuffer("");
+		r.append(item);
+		r.append(" -1 ");
+		r.append("SUP: ");
+		r.append(bitmap.getSupport());
+		//writer.write(r.toString());
+		//writer.newLine();
+                results.add(r.toString());
 	}
 	
 	/**
@@ -372,6 +626,29 @@ public class AlgoSPAM{
 		writer.write(r.toString());
 //		System.out.println(r.toString());
 		writer.newLine();
+	}
+        
+        private void savePattern2(List<String> results,Prefix prefix, Bitmap bitmap)  {
+		patternCount++;
+		
+		StringBuffer r = new StringBuffer("");
+		for(Itemset itemset : prefix.getItemsets()){
+//			r.append('(');
+			for(Integer item : itemset.getItems()){
+				String string = item.toString();
+				r.append(string);
+				r.append(' ');
+			}
+			r.append("-1 ");
+		}
+
+		r.append("SUP: ");
+		r.append(bitmap.getSupport());
+		
+		//writer.write(r.toString());
+//		System.out.println(r.toString());
+		//writer.newLine();
+                results.add(r.toString());
 	}
 
 	/**
