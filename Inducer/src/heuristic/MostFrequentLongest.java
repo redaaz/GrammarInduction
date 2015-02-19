@@ -15,7 +15,7 @@ import java.util.List;
  *
  * @author reda
  */
-public class MostFrequentLongest  implements Heuristics{
+public class MostFrequentLongest  implements Heuristic{
 
     @Override
     public FrequentPattern chooseFrequentPattern(List<FrequentPattern> input) {

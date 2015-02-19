@@ -22,7 +22,7 @@ import spm.spam.Bitmap;
  *
  * @author reda
  */
-public class MostCohesiveLongest  implements Heuristics {
+public class MostCohesiveLongest  implements Heuristic {
 
     Map<Integer,Bitmap> VDB;
     FrequentPattern bestfp;

@@ -7,14 +7,13 @@
 package heuristic;
 
 import datastructure.FrequentPattern;
-import java.util.Comparator;
 import java.util.List;
 
 /**
  *
  * @author reda
  */
-public interface Heuristics {
+public interface Heuristic {
        
     public FrequentPattern chooseFrequentPattern(List<FrequentPattern> input);
     
