@@ -67,8 +67,8 @@ public class Inducer {
             
             //(2) find best frequent pattern
             //------------------------------
-            LongestMostFrequent lmf=new LongestMostFrequent();
-            FrequentPattern bsetFI1=lmf.chooseFrequentPattern(result);
+            //LongestMostFrequent lmf=new LongestMostFrequent();
+            //FrequentPattern bsetFI1=lmf.chooseFrequentPattern(result);
 
             MostCohesiveLongest js=new MostCohesiveLongest(aa.verticalDB);
             FrequentPattern bsetFI2=js.chooseFrequentPattern(result);
@@ -93,8 +93,8 @@ public class Inducer {
             corpus.stream().forEach(qq-> qq.println());
             
         }
-        
-        System.out.println("Execution time (ms): "=aa.);
+        System.out.println("Start time (ms): "+aa.startTime);
+        System.out.println("End time (ms): "+aa.endTime);
         
     }
     
