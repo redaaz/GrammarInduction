@@ -36,7 +36,7 @@ public class Inducer {
         
         
         //Read the input
-        List<Sentence> test;
+        List<Sentence> corpus;
         Sentence s1=new Sentence("h1 h2 h9 h10 h6 h3 h4 h8");//
         Sentence s2=new Sentence("h2 h3 h5 h1");
         Sentence s3=new Sentence("h1 h3 h5 h2 h7");
@@ -44,49 +44,55 @@ public class Inducer {
         Sentence s5=new Sentence("h5 h3 h1");
         Sentence s6=new Sentence("h7 h5 h1 h4 h1");
         Sentence s7=new Sentence("h1 h3 h9 h10");//
-        test = Arrays.asList(s1,s2,s3,s4,s5,s6,s7);
-        test.stream().forEach(sss->sss.println());
+        corpus = Arrays.asList(s1,s2,s3,s4,s5,s6,s7);
+        corpus.stream().forEach(sss->sss.println());
         
-        //Initial the output
+        //Initials
         List<Rule> output=new ArrayList<>();
+        boolean stop=false;
+        int loopCounter=0;
+        SPMiningAlgorithm aa=new AlgoCMSPAM();
+        GI gi=new GI();
+        double minSup1=0.4;
+        double minSup2=0.5;
         
         //the algorithm
-        
-        //(1) find frequent patterns
-        //--------------------------
-        SPMiningAlgorithm aa=new AlgoCMSPAM();
-        List<FrequentPattern> result= aa.runAlgorithm(test, 0.4);
-        //result.stream().forEach((fp) -> { fp.println(); });
-        
-        //(2) find best frequent pattern
-        //------------------------------
-        LongestMostFrequent lmf=new LongestMostFrequent();
-        FrequentPattern bsetFI1=lmf.chooseFrequentPattern(result);
-        
-        MostCohesiveLongest js=new MostCohesiveLongest(aa.verticalDB);
-        FrequentPattern bsetFI2=js.chooseFrequentPattern(result);
-        
-        //System.out.println("LongestMostFrequent");
-        //bsetFI1.println();
-        
-        //System.out.println("MostCohesiveLongest");
-        //bsetFI2.println();
-        //System.out.println(js.getMaxSim());
-        
-        //(3) make rules
-        //--------------
-        System.out.println("-- New Rules -----");
-        List<Rule> rrrr=Rule.makeRules(test, bsetFI2,0.5);
-        rrrr.stream().forEach(aa1->aa1.println());
-        output.addAll(rrrr);
-        
-        //(4) update the corpus
-        //---------------------
-        GI gi=new GI();
-        List<Sentence> ee=gi.updateTheCorpus(test, rrrr);
-        System.out.println("-- The Corpus -----");
-        ee.stream().forEach(qq-> qq.println());
-        
+        while(!stop){
+            System.out.println();
+            System.out.println("loop:"+loopCounter++);
+            //(1) find frequent patterns
+            //--------------------------
+            List<FrequentPattern> result= aa.runAlgorithm(corpus, minSup1);
+            //result.stream().forEach((fp) -> { fp.println(); });
+            
+            //(2) find best frequent pattern
+            //------------------------------
+            LongestMostFrequent lmf=new LongestMostFrequent();
+            FrequentPattern bsetFI1=lmf.chooseFrequentPattern(result);
+
+            MostCohesiveLongest js=new MostCohesiveLongest(aa.verticalDB);
+            FrequentPattern bsetFI2=js.chooseFrequentPattern(result);
+
+            //(3) make rules
+            //--------------
+            
+            List<Rule> newRules=Rule.makeRules(corpus, bsetFI2,minSup2);
+            if(!newRules.isEmpty()) {
+                System.out.println("-- New Rules -----");
+                newRules.stream().forEach(aa1->aa1.println());
+            }
+            output.addAll(newRules);
+
+            if(newRules.isEmpty())
+                stop=true;
+            
+            //(4) update the corpus
+            //---------------------
+            corpus=gi.updateTheCorpus(corpus, newRules);
+            System.out.println("-- The Corpus -----");
+            corpus.stream().forEach(qq-> qq.println());
+            
+        }
         
     }
     
