@@ -16,7 +16,7 @@ public class Preprocessing {
    
     static HashMap<Character,String> punctuationList =new HashMap<>();
     
-    static void initialization(){
+    public static void initialization(){
         punctuationList.put('\'', "__apostrophe");
         punctuationList.put('’', "__apostrophe");                   
         punctuationList.put('[', "__leftbrackets");
@@ -83,8 +83,7 @@ public class Preprocessing {
         punctuationList.put('‘', "__quotationmark");
     } 
     
-    
-    static String repalcePunctuations(String x){
+    public static String repalcePunctuations(String x){
         String res="";
         for(int i=0;i<x.length();i++){
             if(punctuationList.containsKey(x.charAt(i)))
@@ -96,19 +95,23 @@ public class Preprocessing {
         return res;
     }
     
-    static String removePunctuations(String x) {
+    public static String removePunctuations(String x) {
         return x.replaceAll("[^\\p{L} 0-9]", " ");
     }
     
-    static String replaceNumbers(String x){
+    public static String replaceNumbers(String x){
         return x.replaceAll("[0-9]+", "__number");
     }
     
-    static String removeNumbers(String x){
+    public static String removeNumbers(String x){
         return x.replaceAll("[0-9]+", "");
     }
-    //to rempve pre and post and long withspaces
-    static String removeLongPrePostWhiteSpaces(String x){
+    //to remove pre and post and long withspaces
+    public static String removeLongPrePostWhiteSpaces(String x){
         return  x.replaceAll("[ ]+", " ").trim();
+    }
+    
+    public static String toLowerCase(String x){
+        return x.toLowerCase();
     }
 }

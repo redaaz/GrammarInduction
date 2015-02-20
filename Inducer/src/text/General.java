@@ -7,25 +7,16 @@
 package text;
 
 import datastructure.CommonSlots;
-import datastructure.FrequentPattern;
-import datastructure.Rule;
-import datastructure.Sentence;
-import datastructure.Slot;
 import heuristic.Heuristic;
 import heuristic.LongestMostFrequent;
-import heuristic.MostFrequentLongest;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 import spm.spam.AlgoCMSPAM;
-import spm.spam.SPMiningAlgorithm;
 
 
 /**
