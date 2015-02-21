@@ -45,6 +45,9 @@ public class MostCohesiveLongest  implements Heuristic {
         this.maxSim=bestfp.getCohesion();
 //        System.out.println("*** "+this.maxSim);
 //        bestfp.println();
+        //this code to prevent one-word frequent lists
+        if(bestfp.getPattern().size()==1)
+            return null;
         return bestfp;
     }
     

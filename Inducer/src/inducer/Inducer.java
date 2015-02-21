@@ -31,10 +31,10 @@ public class Inducer {
         
         //Read the input
         String folderPath="/Users/reda/Documents/NewAlgoTests/";
-        String filename="Test0";
+        String filename="Test10K_1";
         List<String> inin=GI.read(folderPath+filename);
         List<Sentence> corpus= GI.buildSentencesCorpus(inin);
-        
+        System.out.println("corpus size:"+corpus.size());
         //Initials
         List<Rule> output=new ArrayList<>();
         boolean stop=false;
@@ -90,6 +90,7 @@ public class Inducer {
             
         }
         System.out.println("-- The Corpus -----");
+        System.out.println("corpus size:"+corpus.size());
         //corpus.stream().forEach(qq-> qq.println());
         
         System.out.println("Start time (ms): "+gi.algo.startTime);

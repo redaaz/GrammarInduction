@@ -235,6 +235,10 @@ public class FrequentPattern {
     }
     
     public void println(){
+        System.out.println(this.toString()+" ("+this.sup+") ");
+    }
+    
+    public void printlnWithReferencesList(){
         System.out.println(this.toString()+" ("+this.sup+") "+this.toStringReferencesList());
     }
 
