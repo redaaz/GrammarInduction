@@ -9,13 +9,13 @@ package inducer;
 import datastructure.FrequentPattern;
 import datastructure.Rule;
 import datastructure.Sentence;
+import heuristic.LongestMostFrequent;
 import heuristic.MostCohesiveLongest;
+import heuristic.MostFrequentLongest;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import spm.spam.AlgoCMSPAM;
-import spm.spam.SPMiningAlgorithm;
 
 /**
  *
@@ -25,19 +25,21 @@ public class Inducer {
 
     /**
      * @param args the command line arguments
+     * @throws java.io.IOException
      */
     public static void main(String[] args) throws IOException {
         
         //Read the input
-        String path="/Users/reda/Documents/test.txt";
-        List<String> inin=GI.read(path);
+        String folderPath="/Users/reda/Documents/NewAlgoTests/";
+        String filename="Test0";
+        List<String> inin=GI.read(folderPath+filename);
         List<Sentence> corpus= GI.buildSentencesCorpus(inin);
         
         //Initials
         List<Rule> output=new ArrayList<>();
         boolean stop=false;
         int loopCounter=0;
-        GI gi=new GI(new AlgoCMSPAM(),0.4,0.5);
+        GI gi=new GI(new AlgoCMSPAM(),0.1,0.3);
         
         //the algorithm
         while(!stop){
@@ -50,24 +52,35 @@ public class Inducer {
             
             //(2) find best frequent pattern
             //------------------------------
-            //LongestMostFrequent lmf=new LongestMostFrequent();
-            //FrequentPattern bsetFI1=lmf.chooseFrequentPattern(result);
-
+            MostFrequentLongest lmf=new MostFrequentLongest();
+            FrequentPattern bestFI1=lmf.chooseFrequentPattern(result);
+            if(bestFI1==null){
+                stop=true;
+                continue;
+            }
+            bestFI1.println();
+            
             MostCohesiveLongest js=new MostCohesiveLongest(gi.algo.verticalDB);
-            FrequentPattern bsetFI2=js.chooseFrequentPattern(result);
-
+            FrequentPattern bestFI2=js.chooseFrequentPattern(result);
+            if(bestFI2==null){
+                stop=true;
+                continue;
+            }
+            bestFI2.println();
             //(3) make rules
             //--------------
             
-            List<Rule> newRules=Rule.makeRules(corpus, bsetFI2,gi.minSup2);
+            List<Rule> newRules=Rule.makeRules(corpus, bestFI2,gi.minSup2);
             if(!newRules.isEmpty()) {
                 System.out.println("-- New Rules -----");
                 newRules.stream().forEach(aa1->aa1.println());
             }
             output.addAll(newRules);
 
-            if(newRules.isEmpty())
+            if(newRules.isEmpty()){
                 stop=true;
+                continue;
+            }
             
             //(4) update the corpus
             //---------------------
@@ -76,10 +89,13 @@ public class Inducer {
             //corpus.stream().forEach(qq-> qq.println());
             
         }
+        System.out.println("-- The Corpus -----");
+        //corpus.stream().forEach(qq-> qq.println());
+        
         System.out.println("Start time (ms): "+gi.algo.startTime);
         System.out.println("End time (ms): "+gi.algo.endTime);
         
-        GI.writeRules(output, "/Users/reda/Documents/", "rules");
+        GI.writeRules(output,folderPath, filename+"_rules");
     }
     
 }

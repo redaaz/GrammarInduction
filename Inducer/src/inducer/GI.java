@@ -108,7 +108,7 @@ public class GI {
     }
 
     public static List<String> read(String filePath) throws FileNotFoundException, IOException{
-        BufferedReader br = new BufferedReader(new FileReader(filePath));
+        BufferedReader br = new BufferedReader(new FileReader(filePath+".txt"));
         String line;
         List<String> in = new ArrayList<>();
         

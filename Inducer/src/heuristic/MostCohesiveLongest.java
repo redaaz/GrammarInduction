@@ -10,7 +10,6 @@ import datastructure.FrequentPattern;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -36,11 +35,16 @@ public class MostCohesiveLongest  implements Heuristic {
     
     @Override
     public FrequentPattern chooseFrequentPattern(List<FrequentPattern> input) {
-        
+         if(input.isEmpty())
+            return null;
+        if(input.size()==1)
+            return input.get(0);
         
         Collections.sort(input, MostCohesiveLongestComparator);
         this.bestfp=input.get(input.size()-1);
         this.maxSim=bestfp.getCohesion();
+//        System.out.println("*** "+this.maxSim);
+//        bestfp.println();
         return bestfp;
     }
     
