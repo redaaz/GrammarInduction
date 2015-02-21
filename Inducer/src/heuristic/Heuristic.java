@@ -17,4 +17,6 @@ public interface Heuristic {
        
     public FrequentPattern chooseFrequentPattern(List<FrequentPattern> input);
     
+    public String getHeuristicName();
+    
 }

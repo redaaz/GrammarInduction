@@ -25,7 +25,9 @@ public class LongestMostFrequent implements Heuristic{
             return input.get(0);
         
         Collections.sort(input,LongestMostFrequentComparator);
-        
+        //this code to prevent one-word frequent lists
+        if(input.get(input.size()-1).getPattern().size()==1)
+            return null;
         return input.get(input.size()-1);
     }
     
@@ -43,6 +45,11 @@ public class LongestMostFrequent implements Heuristic{
                               //if this.sup==o.sup
                               return 0;
     };
+
+    @Override
+    public String getHeuristicName() {
+        return "LongestMostFrequent";
+    }
 
     
     

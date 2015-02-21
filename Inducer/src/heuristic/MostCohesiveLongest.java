@@ -108,5 +108,10 @@ public class MostCohesiveLongest  implements Heuristic {
     public double getMaxSim(){
         return this.maxSim;
     }
+
+    @Override
+    public String getHeuristicName() {
+        return "MostCohesiveLongest";
+    }
     
 }

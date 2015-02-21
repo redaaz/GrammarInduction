@@ -39,7 +39,7 @@ public class Inducer {
         List<Rule> output=new ArrayList<>();
         boolean stop=false;
         int loopCounter=0;
-        GI gi=new GI(new AlgoCMSPAM(),0.1,0.3);
+        GI gi=new GI(new AlgoCMSPAM(),0.002,0.3);
         
         //the algorithm
         while(!stop){
@@ -52,13 +52,13 @@ public class Inducer {
             
             //(2) find best frequent pattern
             //------------------------------
-            MostFrequentLongest lmf=new MostFrequentLongest();
-            FrequentPattern bestFI1=lmf.chooseFrequentPattern(result);
-            if(bestFI1==null){
-                stop=true;
-                continue;
-            }
-            bestFI1.println();
+//            MostFrequentLongest lmf=new MostFrequentLongest();
+//            FrequentPattern bestFI1=lmf.chooseFrequentPattern(result);
+//            if(bestFI1==null){
+//                stop=true;
+//                continue;
+//            }
+//            bestFI1.println();
             
             MostCohesiveLongest js=new MostCohesiveLongest(gi.algo.verticalDB);
             FrequentPattern bestFI2=js.chooseFrequentPattern(result);
@@ -96,7 +96,7 @@ public class Inducer {
         System.out.println("Start time (ms): "+gi.algo.startTime);
         System.out.println("End time (ms): "+gi.algo.endTime);
         
-        GI.writeRules(output,folderPath, filename+"_rules");
+        GI.writeRules(output,folderPath, filename +"_rules");
     }
     
 }

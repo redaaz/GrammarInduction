@@ -46,9 +46,9 @@ public class GI {
         return this.algo.runAlgorithm(in, minSup1);
     }
     
-    public List<Sentence> updateTheCorpus(List<Sentence> input,List<Rule> rules){
+    public List<Sentence> updateTheCorpus(List<Sentence> input,List<Rule> newRules){
         List<MainRule> mains=new ArrayList<>();
-        rules.stream().filter((rr) -> (rr.getRuleType()==RuleType.Main)).forEach((rr) -> {
+        newRules.stream().filter((rr) -> (rr.getRuleType()==RuleType.Main)).forEach((rr) -> {
             mains.add((MainRule)rr);
         });
         
