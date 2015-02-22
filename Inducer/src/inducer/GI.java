@@ -20,6 +20,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import spm.spam.SPMiningAlgorithm;
@@ -53,6 +54,7 @@ public class GI {
         });
         
         List<Sentence> toDelete=new ArrayList<>();
+        HashMap<Integer,List<Integer>> newIndextoListOfOldSentences=new HashMap<>();
         
         mains.stream().forEach((mr) -> {
             Sentence se=mr.toSentence();
@@ -65,6 +67,10 @@ public class GI {
         });
         
         return input.stream().filter(x->!toDelete.contains(x)).collect(Collectors.toList());
+    }
+    
+    public List<Rule> updateRulesReferencesIndexs(List<Rule> rules){
+        
     }
     
     public List<Sentence> readTheCorpus(String filePath){
