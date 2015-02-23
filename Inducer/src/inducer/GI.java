@@ -11,6 +11,8 @@ import datastructure.MainRule;
 import datastructure.Rule;
 import datastructure.RuleType;
 import datastructure.Sentence;
+import datastructure.WordsDictionary;
+import heuristic.Heuristic;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -19,16 +21,21 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import spm.spam.SPMiningAlgorithm;
+import text.PreTextOperation;
 import text.Preprocessing;
 
 /**
@@ -39,13 +46,53 @@ public class GI {
     
     SPMiningAlgorithm algo;
     
+    Heuristic heuristic;
+    
+    PreTextOperation punctuation;
+    PreTextOperation numbers;
+    
     double minSup1;
     double minSup2;
     
-    public GI(SPMiningAlgorithm alg,double min1,double min2){
+    long startExecutionTime;
+    long endExecutionTime;
+    
+    long startReadingTime;
+    long endReadingTime;
+    
+    long startWritingTime;
+    long endWritingTime;
+    
+    long startFreeMemory;
+    long endFreeMemory;
+    
+    List<Integer> corpusSizes;
+    int inputSize;
+    int outputSize;
+    
+    List<Rule> InducedRules;
+    double AvgInputLength;
+    
+    int totalWordsInInput;
+    
+    public GI(SPMiningAlgorithm alg,Heuristic heu,double min1,double min2){
         this.algo=alg;
+        this.heuristic=heu;
         this.minSup1=min1;
         this.minSup2=min2;
+        this.inputSize=0;
+        this.outputSize=0;
+        this.InducedRules=new ArrayList<>();
+        this.AvgInputLength=0;
+        this.totalWordsInInput=0;
+        this.punctuation=null;
+        this.numbers=null;
+    }
+    //@param num: number preprocessing operation
+    //@param punc: punctuation preprocessing operation
+    public void setTextPreprocessing(PreTextOperation num,PreTextOperation punc){
+        this.numbers=num;
+        this.punctuation=punc;
     }
     
     public List<FrequentPattern> runAlgorithm(List<Sentence> in){
@@ -101,7 +148,8 @@ public class GI {
     //@param input: the corpus
     //@param newRules: list of new induced rule
     //@param rules: list of all rules to adapt the references
-    public List<Sentence> updateData(List<Sentence> input,List<Rule> newRules,List<Rule> rules){
+    public List<Sentence> updateData(List<Sentence> input,List<Rule> newRules){
+        List<Rule> rules=this.InducedRules;
         //apply the induced rules on the corpus, some redundunt sentence may produce after this step
         //output list size=input list size
         List<Sentence> cor=replaceWithNewRules(input,newRules);
@@ -133,9 +181,10 @@ public class GI {
         return cor;
     }
     
-    public static List<Sentence> readTheCorpus(String folderPath,String fileName) throws IOException{
+    public List<Sentence> readTheCorpus(String folderPath,String fileName) throws IOException{
         List<String> inin=GI.read(folderPath+fileName);
-        return GI.buildSentencesCorpus(inin);
+        this.inputSize=inin.size();
+        return buildSentencesCorpus(inin);
     }
     
     public static void write(List<String> records,String outputPath,String filename) throws IOException {
@@ -159,9 +208,50 @@ public class GI {
         }
     }
 
-    public static void writeTheCorpus(List<Sentence> input,String folderPath, String fileName) throws IOException{
+    public void writeTheCorpus(List<Sentence> input,String folderPath, String fileName) throws IOException{
         List<String> in=input.stream().map(x-> x.toString()).collect(Collectors.toList());
+        this.outputSize=input.size();
         write(in,folderPath,fileName);
+    }
+    
+    public void writeExperimentReport(String folderPath,String inputFileName) throws IOException{
+        List<String> rep=new ArrayList<>();
+        Date date=new Date();
+        
+        rep.add("Experiment Report");
+        rep.add("-----------------");
+        rep.add("Date: "+ date.toString());
+        rep.add("");
+        rep.add("ALGORITHM INFO");
+        rep.add("--------------");
+        rep.add("Algorithm: "+this.algo.getAlgoName());
+        rep.add("Heuristic: "+this.heuristic.getHeuristicName());
+        rep.add("Primary Minimum Support: "+this.minSup1);
+        rep.add("Secondary Minimum Support: "+this.minSup2);
+        rep.add("");
+        rep.add("PERFORMACE INFO");
+        rep.add("---------------");
+        rep.add("Reading Time (ms): "+this.getReadingTimeInMillis());
+        rep.add("Execution Time (ms): "+this.getExecutionTimeInMillis());
+        rep.add("Writing Time (ms): "+this.getWritingTimeInMillis());
+        rep.add("Used Memory (MB): "+this.getUsedMemoryInMB());
+        rep.add("");
+        rep.add("DATA INFO");
+        rep.add("----------");
+        rep.add("Initial Corpus Size: "+this.inputSize);
+        rep.add("Final Corpus Size: "+this.outputSize);
+        double compressionRatio=((this.inputSize-this.outputSize)*100)/(double)this.inputSize;
+        rep.add("Compression Ratio: "+ Math.round(compressionRatio*100.0)/100.0+"%");
+        rep.add("Induced Rules: "+this.InducedRules.size());
+        rep.add("Average Input Length (wps): "+this.totalWordsInInput/(double)this.inputSize);
+        rep.add("# of Unique Input Words: "+WordsDictionary.getNumOfUniqueWords());
+        rep.add("");
+        rep.add("TEXT PREPROCESSING INFO");
+        rep.add("-----------------------");
+        rep.add("Numbers: "+this.numbers);
+        rep.add("Punctuations: "+this.punctuation);
+            
+        write(rep,folderPath,"("+inputFileName+") "+date.toString());
     }
     
     private static void write1(List<String> records, Writer writer) throws IOException {
@@ -187,22 +277,47 @@ public class GI {
         return in;
     }
     
-    private static List<Sentence> buildSentencesCorpus(List<String> input){
+    private List<Sentence> buildSentencesCorpus(List<String> input) {
         List<Sentence> res=new ArrayList<>();
-        Preprocessing.initialization();
-        
+        try{
+            Preprocessing.initialization();
+        }catch(NoSuchMethodException e){
+            System.out.println(e.toString());
+        }
         input.stream().forEach(x->{
             String str=Preprocessing.toLowerCase(x);
-            //str=Preprocessing.replaceNumbers(str);
-            str=Preprocessing.removePunctuations(str);
+            
+            if(this.numbers!=null){
+                Object[] parameters = new String[1];
+                parameters[0] = str;
+                try {
+                    str=(String)Preprocessing.getOperation.get(this.numbers).invoke(this, parameters);
+                } catch (Exception e) {
+                   System.out.println(e.toString());
+                }
+            }
+            
+            if(this.punctuation!=null){
+                Object[] parameters = new String[1];
+                parameters[0] = str;
+                try {
+                    str=(String)Preprocessing.getOperation.get(this.punctuation).invoke(null, parameters);
+                } catch (Exception e) {
+                   System.out.println(e.toString());
+                }
+            }
+            
             str=Preprocessing.removeLongPrePostWhiteSpaces(str);
-            res.add(new Sentence(str));
+            Sentence se=new Sentence(str);
+            res.add(se);
+            this.totalWordsInInput+=se.getLength();
         });
         
         return res;
     }
     
-    public static void writeRules(List<Rule> rules,String outputPath, String filename) throws IOException{
+    public void writeRules(String outputPath, String filename) throws IOException{
+        List<Rule> rules=this.InducedRules;
          int bufSize=(int) Math.pow(1024, 2);
         File file;
         if(outputPath==null){
@@ -223,4 +338,53 @@ public class GI {
             //file.delete();
         }
     }
+    
+    public void startExecution(){
+        this.startExecutionTime=System.currentTimeMillis();
+    }
+    
+    public void endExecution(){
+        this.endExecutionTime=System.currentTimeMillis();
+    }
+    
+    public long getExecutionTimeInMillis(){
+        return this.endExecutionTime-this.startExecutionTime;
+    }
+    
+    public void startReading(){
+        this.startReadingTime=System.currentTimeMillis();
+    }
+    
+    public void endReading(){
+        this.endReadingTime=System.currentTimeMillis();
+    }
+    
+    public long getReadingTimeInMillis(){
+        return this.endReadingTime-this.startReadingTime;
+    }
+    
+    public void startWriting(){
+        this.startWritingTime=System.currentTimeMillis();
+    }
+    
+    public void endWriting(){
+        this.endWritingTime=System.currentTimeMillis();
+    }
+    
+    public long getWritingTimeInMillis(){
+        return this.endWritingTime-this.startWritingTime;
+    }
+    
+    public void startPointForFreeMemory(){
+        this.startFreeMemory= Runtime.getRuntime().totalMemory();
+    }
+    
+    public void endPointForFreeMemory(){
+        this.endFreeMemory= Runtime.getRuntime().totalMemory();
+    }
+    
+    public long getUsedMemoryInMB(){
+        return ((this.endFreeMemory-this.startFreeMemory)/1000000);
+    }
+    
 }
