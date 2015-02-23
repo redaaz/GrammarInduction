@@ -6,7 +6,11 @@
 
 package text;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
+import jdk.nashorn.internal.codegen.types.Type;
+
 
 /**
  *
@@ -16,7 +20,9 @@ public class Preprocessing {
    
     static HashMap<Character,String> punctuationList =new HashMap<>();
     
-    public static void initialization(){
+    public static HashMap<PreTextOperation,Method> getOperation=new HashMap<>();
+    
+    public static void initialization() throws NoSuchMethodException{
         punctuationList.put('\'', "__apostrophe");
         punctuationList.put('’', "__apostrophe");                   
         punctuationList.put('[', "__leftbrackets");
@@ -81,8 +87,15 @@ public class Preprocessing {
         punctuationList.put('“', "__quotationmark");
         punctuationList.put('’', "__quotationmark");
         punctuationList.put('‘', "__quotationmark");
+        
+        Class[] parameterTypes = new Class[1];
+        parameterTypes[0] = String.class;
+        getOperation.put(PreTextOperation.RemoveNumbers,Preprocessing.class.getMethod("removeNumbers",parameterTypes));
+        getOperation.put(PreTextOperation.ReplaceNumbers,Preprocessing.class.getMethod("replaceNumbers",parameterTypes));
+        getOperation.put(PreTextOperation.RemovePunctuations,Preprocessing.class.getMethod("removePunctuations",parameterTypes));
+        getOperation.put(PreTextOperation.ReplacePunctuations,Preprocessing.class.getMethod("repalcePunctuations",parameterTypes));
     } 
-    
+    //punc. -> " "+punc.name+" "
     public static String repalcePunctuations(String x){
         String res="";
         for(int i=0;i<x.length();i++){
@@ -94,7 +107,7 @@ public class Preprocessing {
         
         return res;
     }
-    
+    //punc. -> " "
     public static String removePunctuations(String x) {
         return x.replaceAll("[^\\p{L} 0-9]", " ");
     }
@@ -102,11 +115,13 @@ public class Preprocessing {
     public static String replaceNumbers(String x){
         return x.replaceAll("[0-9]+", "__number");
     }
-    
+    //num. -> ""
+    //all number (individual or included) 
     public static String removeNumbers(String x){
         return x.replaceAll("[0-9]+", "");
     }
     //to remove pre and post and long withspaces
+    // included long spaces -> " "
     public static String removeLongPrePostWhiteSpaces(String x){
         return  x.replaceAll("[ ]+", " ").trim();
     }
