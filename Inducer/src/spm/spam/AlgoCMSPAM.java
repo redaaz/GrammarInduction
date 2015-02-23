@@ -1289,5 +1289,9 @@ public class AlgoCMSPAM extends SPMiningAlgorithm{
         this.maximumPatternLength = maximumPatternLength;
     }
     
+    @Override
+    public String getAlgoName(){
+        return "CM-SPAM";
+    }
     
 }

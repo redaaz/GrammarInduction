@@ -683,4 +683,8 @@ public class AlgoSPAM extends SPMiningAlgorithm{
 		this.maximumPatternLength = maximumPatternLength;
 	}
 
+        @Override
+        public String getAlgoName(){
+        return "SPAM";
+    }
 }

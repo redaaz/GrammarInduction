@@ -32,4 +32,8 @@ public class SPMiningAlgorithm {
     public List<FrequentPattern> runAlgorithm(List<Sentence> input, double minsupRel){
         return null;
     }
+    
+    public String getAlgoName(){
+        return "No name has inserted";
+    }
 }
