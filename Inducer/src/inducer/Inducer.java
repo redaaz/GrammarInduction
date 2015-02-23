@@ -8,6 +8,7 @@ package inducer;
 
 import datastructure.FrequentPattern;
 import datastructure.Rule;
+import datastructure.RuleType;
 import datastructure.Sentence;
 import heuristic.LongestMostFrequent;
 import heuristic.MostCohesiveLongest;
@@ -15,7 +16,9 @@ import heuristic.MostFrequentLongest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import spm.spam.AlgoCMSPAM;
 
@@ -34,14 +37,14 @@ public class Inducer {
         //Read the input
         String folderPath="/Users/reda/Documents/NewAlgoTests/";
         String filename="Test10K_1";
-        List<String> inin=GI.read(folderPath+filename);
-        List<Sentence> corpus= GI.buildSentencesCorpus(inin);
+        
+        List<Sentence> corpus= GI.readTheCorpus(folderPath,filename);
         System.out.println("corpus size:"+corpus.size());
         //Initials
         List<Rule> output=new ArrayList<>();
         boolean stop=false;
         int loopCounter=0;
-        GI gi=new GI(new AlgoCMSPAM(),0.002,0.3);
+        GI gi=new GI(new AlgoCMSPAM(),0.005,0.3);
         
         //the algorithm
         while(!stop){
@@ -86,11 +89,13 @@ public class Inducer {
             
             //(4) update the corpus
             //---------------------
-            corpus=gi.updateTheCorpus(corpus, newRules);
+            //corpus=gi.replaceWithNewRules(corpus, newRules);
+            corpus=gi.updateData(corpus, newRules, output);
             //System.out.println("-- The Corpus -----");
             //corpus.stream().forEach(qq-> qq.println());
             
         }
+        
         System.out.println("-- The Corpus -----");
         System.out.println("corpus size:"+corpus.size());
         //corpus.stream().forEach(qq-> qq.println());
@@ -99,6 +104,7 @@ public class Inducer {
         System.out.println("End time (ms): "+gi.algo.endTime);
         
         GI.writeRules(output,folderPath, filename +"_rules");
+        GI.writeTheCorpus(corpus, folderPath, filename+"_output");
     }
     
 }

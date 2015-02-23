@@ -17,7 +17,7 @@ public class MainRule extends Rule {
     
     List<Integer> elements;
     
-    List<SubRule> relatedSubRules;
+    public List<SubRule> relatedSubRules;
     
     List<Integer> activeSlotIDs;
     
@@ -93,4 +93,6 @@ public class MainRule extends Rule {
         Sentence res=new Sentence(this.leftSide);
         return res;
     }
+    
+    
 }
