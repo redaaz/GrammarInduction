@@ -23,13 +23,13 @@ import spm.spam.Bitmap;
  */
 public class MostCohesiveLongest  implements Heuristic {
 
-    Map<Integer,Bitmap> VDB;
+    
     FrequentPattern bestfp;
     double maxSim;
     
-    public MostCohesiveLongest(Map<Integer,Bitmap> vdb){
-        this.VDB=vdb;
-        FrequentPattern bestfp=null;
+    public MostCohesiveLongest(){
+      
+        bestfp=null;
         maxSim=Double.MIN_VALUE;
     }
     
@@ -67,7 +67,7 @@ public class MostCohesiveLongest  implements Heuristic {
     };
     
     // intersection(11)/union (10||01||11)
-    double calcCohesion(FrequentPattern fp){
+    /*double calcCohesion(FrequentPattern fp){
         if(fp.getPattern().size()<=1)
             return 0; //to be discussed
         if(fp.getPattern().size()==2){
@@ -95,7 +95,7 @@ public class MostCohesiveLongest  implements Heuristic {
             System.out.println(value1/(double)value2);
         return value1/(double)value2;
     }
-    
+    */
     <T> List<T> union(List<T> list1, List<T> list2) {
         Set<T> set = new HashSet<>();
 

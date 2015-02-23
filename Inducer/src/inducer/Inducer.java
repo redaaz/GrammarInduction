@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import spm.spam.AlgoCMSPAM;
+import text.PreTextOperation;
 
 /**
  *
@@ -34,22 +35,28 @@ public class Inducer {
      */
     public static void main(String[] args) throws IOException {
         
-        //Read the input
-        String folderPath="/Users/reda/Documents/NewAlgoTests/";
-        String filename="Test10K_1";
-        
-        List<Sentence> corpus= GI.readTheCorpus(folderPath,filename);
-        System.out.println("corpus size:"+corpus.size());
         //Initials
-        List<Rule> output=new ArrayList<>();
         boolean stop=false;
         int loopCounter=0;
-        GI gi=new GI(new AlgoCMSPAM(),0.005,0.3);
+        GI gi=new GI(new AlgoCMSPAM(),new MostCohesiveLongest(),0.005,0.2);
+        gi.setTextPreprocessing(null, PreTextOperation.RemovePunctuations);
         
+        //Read the input
+        String folderPath="/Users/reda/Documents/NewAlgoTests/";
+        String fileName="Test10K_1";
+        
+        gi.startReading();
+        List<Sentence> corpus= gi.readTheCorpus(folderPath,fileName);
+        gi.endReading();
+        
+        System.out.println("corpus size:"+corpus.size());
+        
+        gi.startPointForFreeMemory();
+        gi.startExecution();
         //the algorithm
         while(!stop){
-            System.out.println();
-            System.out.println("loop:"+loopCounter++);
+            //System.out.println();
+            //System.out.println("loop:"+loopCounter++);
             //(1) find frequent patterns
             //--------------------------
             List<FrequentPattern> result= gi.runAlgorithm(corpus);
@@ -57,54 +64,49 @@ public class Inducer {
             
             //(2) find best frequent pattern
             //------------------------------
-//            MostFrequentLongest lmf=new MostFrequentLongest();
-//            FrequentPattern bestFI1=lmf.chooseFrequentPattern(result);
-//            if(bestFI1==null){
-//                stop=true;
-//                continue;
-//            }
-//            bestFI1.println();
             
-            MostCohesiveLongest js=new MostCohesiveLongest(gi.algo.verticalDB);
-            FrequentPattern bestFI2=js.chooseFrequentPattern(result);
-            if(bestFI2==null){
+            FrequentPattern bestFI=gi.heuristic.chooseFrequentPattern(result);
+            if(bestFI==null){
                 stop=true;
                 continue;
             }
-            bestFI2.println();
+            //bestFI.println();
             //(3) make rules
             //--------------
             
-            List<Rule> newRules=Rule.makeRules(corpus, bestFI2,gi.minSup2);
+            List<Rule> newRules=Rule.makeRules(corpus, bestFI,gi.minSup2);
             if(!newRules.isEmpty()) {
-                System.out.println("-- New Rules -----");
-                newRules.stream().forEach(aa1->aa1.println());
+                //System.out.println("-- New Rules ("+newRules.size()+")-----");
+                //newRules.stream().forEach(aa1->aa1.println());
             }
-            output.addAll(newRules);
-
+            
             if(newRules.isEmpty()){
                 stop=true;
                 continue;
             }
             
+            gi.InducedRules.addAll(newRules);
+
             //(4) update the corpus
             //---------------------
             //corpus=gi.replaceWithNewRules(corpus, newRules);
-            corpus=gi.updateData(corpus, newRules, output);
+            corpus=gi.updateData(corpus, newRules);
             //System.out.println("-- The Corpus -----");
             //corpus.stream().forEach(qq-> qq.println());
             
         }
-        
-        System.out.println("-- The Corpus -----");
-        System.out.println("corpus size:"+corpus.size());
+        gi.endExecution();
+        gi.endPointForFreeMemory();
+        //System.out.println("-- The Corpus -----");
+        //System.out.println("corpus size:"+corpus.size());
         //corpus.stream().forEach(qq-> qq.println());
         
-        System.out.println("Start time (ms): "+gi.algo.startTime);
-        System.out.println("End time (ms): "+gi.algo.endTime);
-        
-        GI.writeRules(output,folderPath, filename +"_rules");
-        GI.writeTheCorpus(corpus, folderPath, filename+"_output");
+        gi.startWriting();
+        gi.writeRules(folderPath, fileName +"_rules");
+        gi.writeTheCorpus(corpus, folderPath, fileName+"_output");
+        gi.endWriting();
+        //Report
+        gi.writeExperimentReport(folderPath,fileName);
     }
     
 }

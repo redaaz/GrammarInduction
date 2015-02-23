@@ -101,5 +101,13 @@ public class  WordsDictionary {
         WordsDictionary.uniqueWordsList.clear();
         WordsDictionary.wordsToIndexDictionary.clear();
     }
-    
+
+    public static int getNumOfUniqueWords(){
+        if(!isExist("<R0>"))
+            return uniqueWordsList.size();
+        else{
+            return getWordIndex("<R0>");
+        }
+    }
 }
+
