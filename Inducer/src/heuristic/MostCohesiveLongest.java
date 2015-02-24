@@ -48,6 +48,17 @@ public class MostCohesiveLongest  implements Heuristic {
         //this code to prevent one-word frequent lists
         if(bestfp.getPattern().size()==1)
             return null;
+        //To be solved later: this code to prevent words redundancy in the pattern e.g.:(as as)
+        Set<Integer> test=new HashSet<>(bestfp.getPattern());
+        int ind=input.size()-2;
+        while(test.size()!=bestfp.getPattern().size() && ind>=0){
+            this.bestfp=input.get(ind);
+            this.maxSim=bestfp.getCohesion();
+            test=new HashSet<>(bestfp.getPattern());
+            ind--;
+        }
+        if(ind<0)
+            return null;
         return bestfp;
     }
     
