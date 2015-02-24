@@ -37,5 +37,20 @@ public class Alternative {
     public int getReferenceIndex(){
         return this.referenceIndex;
     }
+
+    @Override
+    public boolean equals(Object aThat){
+        Alternative that=(Alternative)aThat;
+        if(that.alterCode.size()!=this.alterCode.size())
+            return false;
+        return this.alterCode.equals(that.alterCode);
+        //ignoring reference index
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        return hash;
+    }
     
 }
