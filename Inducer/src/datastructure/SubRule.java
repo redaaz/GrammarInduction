@@ -8,7 +8,9 @@ package datastructure;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import text.General;
 
 /**
@@ -31,9 +33,11 @@ public class SubRule extends Rule {
     @Override
     public String getCodedRightSide(){
         if(this.alternatives.isEmpty())
-            return null;
+            return null;       
+        Set<Alternative> set=new HashSet<>(this.alternatives);
+        List<Alternative> uniqueList=new ArrayList<>(set);
         StringBuilder str=new StringBuilder();
-        alternatives.stream().forEach(alt-> {     
+        uniqueList.stream().forEach(alt-> {     
             StringBuilder subStr=new StringBuilder();
             subStr.append(alt.toStringCode());
             str.append(subStr).append(" | ");
@@ -45,8 +49,10 @@ public class SubRule extends Rule {
     public String getRightSide(){
         if(this.alternatives.isEmpty())
             return null;
+        Set<Alternative> set=new HashSet<>(this.alternatives);
+        List<Alternative> uniqueList=new ArrayList<>(set);
         StringBuilder str=new StringBuilder();
-        alternatives.stream().forEach(alt -> {
+        uniqueList.stream().forEach(alt -> {
             StringBuilder str1=new StringBuilder();
             str1.append(alt.toString());
             str.append(str1).append(" | ");
