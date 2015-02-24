@@ -35,16 +35,16 @@ public class MostCohesiveLongest  implements Heuristic {
     
     @Override
     public FrequentPattern chooseFrequentPattern(List<FrequentPattern> input) {
-         if(input.isEmpty())
+        if(input.isEmpty())
             return null;
-        if(input.size()==1)
+        if(input.size()==1){
+            if(input.get(0).getPattern().size()==1)
+                return null;
             return input.get(0);
-        
+        }
         Collections.sort(input, MostCohesiveLongestComparator);
         this.bestfp=input.get(input.size()-1);
         this.maxSim=bestfp.getCohesion();
-//        System.out.println("*** "+this.maxSim);
-//        bestfp.println();
         //this code to prevent one-word frequent lists
         if(bestfp.getPattern().size()==1)
             return null;
@@ -59,6 +59,8 @@ public class MostCohesiveLongest  implements Heuristic {
         }
         if(ind<0)
             return null;
+        if(bestfp.getPattern().size()==1)
+            return null;    
         return bestfp;
     }
     

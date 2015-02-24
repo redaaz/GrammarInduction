@@ -21,8 +21,13 @@ public class LongestMostFrequent implements Heuristic{
     public FrequentPattern chooseFrequentPattern(List<FrequentPattern> input) {
         if(input.isEmpty())
             return null;
-        if(input.size()==1)
+        if(input.isEmpty())
+            return null;
+        if(input.size()==1){
+            if(input.get(0).getPattern().size()==1)
+                return null;
             return input.get(0);
+        }
         
         Collections.sort(input,LongestMostFrequentComparator);
         //this code to prevent one-word frequent lists
