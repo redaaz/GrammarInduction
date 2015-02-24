@@ -66,6 +66,8 @@ public class GI {
     long startFreeMemory;
     long endFreeMemory;
     
+    int numOfLoops;
+    
     List<Integer> corpusSizes;
     int inputSize;
     int outputSize;
@@ -87,6 +89,8 @@ public class GI {
         this.totalWordsInInput=0;
         this.punctuation=null;
         this.numbers=null;
+        this.numOfLoops=0;
+        this.corpusSizes=new ArrayList<>();
     }
     //@param num: number preprocessing operation
     //@param punc: punctuation preprocessing operation
@@ -214,6 +218,14 @@ public class GI {
         write(in,folderPath,fileName);
     }
     
+    public void setNumOfLoops(int x){
+        this.numOfLoops=x;
+    }
+    
+    public int getNumOfLoops(){
+        return this.numOfLoops;
+    }
+    
     public void writeExperimentReport(String folderPath,String inputFileName) throws IOException{
         List<String> rep=new ArrayList<>();
         Date date=new Date();
@@ -228,6 +240,7 @@ public class GI {
         rep.add("Heuristic: "+this.heuristic.getHeuristicName());
         rep.add("Primary Minimum Support: "+this.minSup1);
         rep.add("Secondary Minimum Support: "+this.minSup2);
+        rep.add("# of Loops: "+this.getNumOfLoops());
         rep.add("");
         rep.add("PERFORMACE INFO");
         rep.add("---------------");
@@ -250,7 +263,12 @@ public class GI {
         rep.add("-----------------------");
         rep.add("Numbers: "+this.numbers);
         rep.add("Punctuations: "+this.punctuation);
-            
+        rep.add("");
+        rep.add("CORPUS SIZES PER LOOPS");
+        rep.add("----------------------");
+        for(Integer i: this.corpusSizes){
+            rep.add(""+i);
+        }
         write(rep,folderPath,"("+inputFileName+") "+date.toString());
     }
     

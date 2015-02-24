@@ -8,18 +8,12 @@ package inducer;
 
 import datastructure.FrequentPattern;
 import datastructure.Rule;
-import datastructure.RuleType;
 import datastructure.Sentence;
-import heuristic.LongestMostFrequent;
 import heuristic.MostCohesiveLongest;
-import heuristic.MostFrequentLongest;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import org.omg.SendingContext.RunTime;
 import spm.spam.AlgoCMSPAM;
 import text.PreTextOperation;
 
@@ -43,20 +37,22 @@ public class Inducer {
         
         //Read the input
         String folderPath="/Users/reda/Documents/NewAlgoTests/";
-        String fileName="Test10K_1";
+        String fileName="200K";
         
         gi.startReading();
         List<Sentence> corpus= gi.readTheCorpus(folderPath,fileName);
+        gi.corpusSizes.add(corpus.size());
         gi.endReading();
         
         System.out.println("corpus size:"+corpus.size());
+        System.out.println(Runtime.getRuntime().maxMemory());
         
         gi.startPointForFreeMemory();
         gi.startExecution();
         //the algorithm
         while(!stop){
             //System.out.println();
-            //System.out.println("loop:"+loopCounter++);
+            System.out.println("loop:"+loopCounter++);
             //(1) find frequent patterns
             //--------------------------
             List<FrequentPattern> result= gi.runAlgorithm(corpus);
@@ -91,10 +87,13 @@ public class Inducer {
             //---------------------
             //corpus=gi.replaceWithNewRules(corpus, newRules);
             corpus=gi.updateData(corpus, newRules);
+            gi.corpusSizes.add(corpus.size());
             //System.out.println("-- The Corpus -----");
             //corpus.stream().forEach(qq-> qq.println());
-            
+            System.out.println("corpus size= "+corpus.size());
         }
+        gi.setNumOfLoops(loopCounter);
+        
         gi.endExecution();
         gi.endPointForFreeMemory();
         //System.out.println("-- The Corpus -----");

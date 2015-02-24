@@ -79,7 +79,7 @@ public class Rule {
         HashMap<Integer,List<Integer>> referencesBesedtoSlots=new HashMap<>();
         
         fp.inputReferences.stream().forEach((refIndex) -> {
-            List<List<Integer>> alters=General.split(input.get(refIndex).sentenceCode, fp.patterns);    
+            List<List<Integer>> alters=General.split(input.get(refIndex).sentenceCode, fp.patterns);
             referencesBesedtoSlots.put(refIndex, new ArrayList<>());
             for(int i=0;i<alters.size();i++){
                 if(!alters.get(i).isEmpty()){
