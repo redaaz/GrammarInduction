@@ -394,15 +394,15 @@ public class GI {
     }
     
     public void startPointForFreeMemory(){
-        this.startFreeMemory= Runtime.getRuntime().totalMemory();
+        this.startFreeMemory= Runtime.getRuntime().maxMemory();
     }
     
     public void endPointForFreeMemory(){
-        this.endFreeMemory= Runtime.getRuntime().totalMemory();
+        this.endFreeMemory= Runtime.getRuntime().maxMemory();
     }
     
     public long getUsedMemoryInMB(){
-        return ((this.endFreeMemory-this.startFreeMemory)/1000000);
+        return Math.abs((this.endFreeMemory-this.startFreeMemory)/1000000);
     }
     
 }

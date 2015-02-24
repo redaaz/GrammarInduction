@@ -37,7 +37,7 @@ public class Inducer {
         
         //Read the input
         String folderPath="/Users/reda/Documents/NewAlgoTests/";
-        String fileName="200K";
+        String fileName="eng(466864)";
         
         gi.startReading();
         List<Sentence> corpus= gi.readTheCorpus(folderPath,fileName);
@@ -60,7 +60,6 @@ public class Inducer {
             
             //(2) find best frequent pattern
             //------------------------------
-            
             FrequentPattern bestFI=gi.heuristic.chooseFrequentPattern(result);
             if(bestFI==null){
                 stop=true;
