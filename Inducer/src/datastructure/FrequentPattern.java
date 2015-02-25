@@ -6,6 +6,11 @@
 
 package datastructure;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.ints.IntSets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -127,16 +132,23 @@ public class FrequentPattern {
     //@param vdb is the vertical data base used in CMSPAM the algorithm
     //required: sup value 
     public void setCohesion(Map<Integer,Bitmap> vdb){
+        /*PERFORMANCE TEST*/long acc1=0,acc2=0,acc3=0,acc4=0;
+        
         if (this.patterns.size()<=1){
             this.cohesion=0;//to be discussed
             return;
         }
-        Set<Integer> set = new HashSet<>();
+        Set<Integer> set=new HashSet<>();
+        //IntSet set=new IntOpenHashSet();
+        //IntSets set;
+        
         for(Integer pp:this.patterns){
             set.addAll(((Bitmap)vdb.get(pp)).inputReferences.stream().map(X -> X.inputSentenceID).collect(Collectors.toList()));
         }
+        
         if(set.isEmpty())
             this.cohesion=-1;
+        /*PERFORMACE TEST*/System.out.println(set.size());
         this.cohesion=this.sup/(double)set.size();
     }
     
@@ -173,9 +185,16 @@ public class FrequentPattern {
                 
         return res;
     }
-    
+    //returns list of input related sentences indexs 
     public  List<Integer> intersect(List<List<Repetition>> input,List<Sentence> in){
+        if(input.isEmpty())
+            return null;
+        if(input.size()==1)
+            return input.get(0).stream().map(x->x.inputSentenceID).collect(Collectors.toList());
+        /*PERFORMANCE TEST*/long acc1=0,acc2=0,acc3=0,acc4=0;
+        /*PERFORMANCE TEST*/
         //choose smallest set to optimaize the intersection
+        /*PERFORMANCE TEST*/long tt1=System.currentTimeMillis();
         int minListSizeIndex=-1;
         int minListSize=Integer.MAX_VALUE;
         for(int i=0;i<input.size();i++){
@@ -184,10 +203,14 @@ public class FrequentPattern {
                 minListSize=input.get(i).size();
             }        
         }
-        
-        Set<Integer> uniqueNums = new HashSet<>(input.get(minListSizeIndex).stream()
+        /*PERFORMANCE TEST*/long tt2=System.currentTimeMillis();
+        /*PERFORMANCE TEST*/acc1+=tt2-tt1;
+        Set<Integer> uniqueNums = new HashSet<>();
+        uniqueNums.addAll(input.get(minListSizeIndex).stream()
         .map(x->x.inputSentenceID).collect(Collectors.toList()));
         
+        /*PERFORMANCE TEST*/long tt3=System.currentTimeMillis();
+        /*PERFORMANCE TEST*/acc2+=tt3-tt2;
         for(int i=0;i<input.size();i++){
             if(i!=minListSizeIndex)
                 uniqueNums.retainAll(new HashSet<>(input.get(i).stream()
@@ -196,11 +219,20 @@ public class FrequentPattern {
         
         List<Integer> res1=new ArrayList<>(uniqueNums);
         List<Integer> res=new ArrayList<>();
-        
+        /*PERFORMANCE TEST*/long tt4=System.currentTimeMillis();
+        /*PERFORMANCE TEST*/acc3+=tt4-tt3;
         for(Integer i: res1){
-            if (General.ContainsSequence(this.patterns,General.toIntegerList(in.get(i).toStringCM_SPAM())))
+            //if (General.ContainsSequence(this.patterns,General.toIntegerList(in.get(i).toStringCM_SPAM())))
+            if (General.ContainsSequence(this.patterns,in.get(i).sentenceCode))
                res.add(i);       
         }
+        /*PERFORMANCE TEST*/long tt5=System.currentTimeMillis();
+        /*PERFORMANCE TEST*/acc4+=tt5-tt4;
+        /*PERFORMANCE TEST*/System.out.println("tt1 : "+acc1 );
+        /*PERFORMANCE TEST*/System.out.println("tt2 : "+acc2 );
+        /*PERFORMANCE TEST*/System.out.println("tt3 : "+acc3 );
+        /*PERFORMANCE TEST*/System.out.println("tt4 : "+acc4 +" # "+res1.size());
+        
         return res;
     }
     

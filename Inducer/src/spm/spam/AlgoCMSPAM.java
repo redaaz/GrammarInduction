@@ -113,8 +113,9 @@ public class AlgoCMSPAM extends SPMiningAlgorithm{
     public List<FrequentPattern> runAlgorithm(List<Sentence> input, double minsupRel) {
         Bitmap.INTERSECTION_COUNT = 0;
         // create an object to write the file
-        
+        /*PERFORMANCE TEST*/long acc1=0,acc2=0,acc3=0,acc4=0;
         /////////writer = new BufferedWriter(new FileWriter(outputFilePath));
+        /*PERFORMANCE TEST*/long third0=System.currentTimeMillis();
         List<String> strRes=new ArrayList<>();
         // initialize the number of patterns found
         patternCount = 0;
@@ -130,19 +131,37 @@ public class AlgoCMSPAM extends SPMiningAlgorithm{
         // close the file
         /////////writer.close();
         List<FrequentPattern> res=new ArrayList<>();
+        
+        /*PERFORMANCE TEST*/long third00=System.currentTimeMillis();
         for(String str:strRes){
+            /*PERFORMANCE TEST*/long third1=System.currentTimeMillis();
             FrequentPattern x=new FrequentPattern(str);
-            
+            /*PERFORMANCE TEST*/long third2=System.currentTimeMillis();
+            /*PERFORMANCE TEST*/acc1+=third2-third1;
             List<List<Repetition>> ref=new ArrayList<>();
-            
-            for(int i:x.getPattern()){
+            /*PERFORMANCE TEST*/long third3=System.currentTimeMillis();
+            x.getPattern().stream().forEach((i) -> {
                 ref.add(this.verticalDB.get(i).inputReferences);
-            }
+            });
+            /*PERFORMANCE TEST*/long third4=System.currentTimeMillis();
+            /*PERFORMANCE TEST*/acc2+=third4-third3;
             x.setInputReferences(ref,input);
+            /*PERFORMANCE TEST*/long third5=System.currentTimeMillis();
+            /*PERFORMANCE TEST*/acc3+=third5-third4;
             x.setCohesion(verticalDB);
+            /*PERFORMANCE TEST*/long third6=System.currentTimeMillis();
+            /*PERFORMANCE TEST*/acc4+=third6-third5;
             res.add(x);
         }
+        /*PERFORMANCE TEST*/long third000=System.currentTimeMillis();
+        /*PERFORMANCE TEST*/long forth=System.currentTimeMillis();
+        /*PERFORMANCE TEST*/System.out.println("algo: "+(third00-third0));
+        /*PERFORMANCE TEST*/System.out.println("acc1: "+acc1);
+        /*PERFORMANCE TEST*/System.out.println("acc2: "+acc2);
+        /*PERFORMANCE TEST*/System.out.println("acc3: "+acc3);
+        /*PERFORMANCE TEST*/System.out.println("acc4: "+acc4);
         
+        ///*PERFORMANCE TEST*/System.out.println("acc6: "+(third000-third00));
         
         return res;
     }
