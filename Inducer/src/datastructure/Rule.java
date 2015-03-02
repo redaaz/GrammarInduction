@@ -6,6 +6,10 @@
 
 package datastructure;
 
+
+import com.carrotsearch.hppc.IntArrayList;
+import com.carrotsearch.hppc.IntObjectOpenHashMap;
+import com.carrotsearch.hppc.cursors.IntCursor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,23 +22,23 @@ import text.General;
  */
 public class Rule {
     protected RuleType ruletype;
-    protected static Integer idCounter=0;
-    protected Integer ruleID;
+    protected static int idCounter=0;
+    protected int ruleID;
     protected String leftSide;
-    protected List<Integer> referencesIndexs;
+    public IntArrayList referencesIndexs;
     
     public Rule(){ 
         this.ruleID=Rule.idCounter++;
         this.leftSide="<R"+this.ruleID+">";
         WordsDictionary.addWord(leftSide);
-        referencesIndexs=new ArrayList<>();
+        referencesIndexs=new IntArrayList();
     }
     
-    public void setReferencesIndexs(List<Integer> ref){
+    public void setReferencesIndexs(IntArrayList ref){
         this.referencesIndexs=ref;
     }
     
-    public List<Integer> getReferencesIndexs(){
+    public IntArrayList getReferencesIndexs(){
         return this.referencesIndexs;
     }
     
@@ -55,7 +59,7 @@ public class Rule {
         return leftSide+" -> "+getRightSide();
     }
     
-    public Integer getRuleIndex(){
+    public int getRuleIndex(){
         return WordsDictionary.getWordIndex(leftSide);
     }
     
@@ -76,11 +80,12 @@ public class Rule {
         for(int i=0;i<=fp.patterns.size();i++)
             slots.add(new Slot());
         
-        HashMap<Integer,List<Integer>> referencesBesedtoSlots=new HashMap<>();
+        //HashMap<Integer,List<Integer>> referencesBesedtoSlots=new HashMap<>();
+        IntObjectOpenHashMap<IntArrayList> referencesBesedtoSlots=new IntObjectOpenHashMap();
         
         fp.inputReferences.stream().forEach((refIndex) -> {
-            List<List<Integer>> alters=General.split(input.get(refIndex).sentenceCode, fp.patterns);
-            referencesBesedtoSlots.put(refIndex, new ArrayList<>());
+            List<IntArrayList> alters=General.split(input.get(refIndex).sentenceCode, fp.patterns);
+            referencesBesedtoSlots.put(refIndex, new IntArrayList());
             for(int i=0;i<alters.size();i++){
                 if(!alters.get(i).isEmpty()){
                     referencesBesedtoSlots.get(refIndex).add(i);
@@ -95,8 +100,8 @@ public class Rule {
         
         while(cslots!=null && !cslots.slots.isEmpty()){
             List<SubRule> tempNewSubRules=new ArrayList<>();
-            for(Integer slotID: cslots.slots){
-                SubRule newSR = SubRule.makeSubRule(slots.get(slotID),cslots);
+            for(IntCursor slotID: cslots.slots){
+                SubRule newSR = SubRule.makeSubRule(slots.get(slotID.value),cslots);
                 tempNewSubRules.add(newSR);
             }
             //1-make main rule
@@ -113,12 +118,15 @@ public class Rule {
         return rules;
     }
     
-    public static void updateReferencesBesedtoSlotsHashMap(MainRule mr,HashMap<Integer,List<Integer>> referencesBesedtoSlotsMap){
-        for(Integer i: mr.referencesIndexs){
-            if(referencesBesedtoSlotsMap.get(i)!=null){
-                referencesBesedtoSlotsMap.get(i).removeAll(mr.activeSlotIDs);
-                if(referencesBesedtoSlotsMap.get(i).isEmpty()){
-                    referencesBesedtoSlotsMap.remove(i);
+    public static void updateReferencesBesedtoSlotsHashMap(MainRule mr,IntObjectOpenHashMap<IntArrayList> referencesBesedtoSlotsMap){
+        for(IntCursor i: mr.referencesIndexs){
+            if(referencesBesedtoSlotsMap.get(i.value)!=null){
+                //referencesBesedtoSlotsMap.get(i.value).removeAll(mr.activeSlotIDs);
+                for(IntCursor xx:mr.activeSlotIDs){
+                    referencesBesedtoSlotsMap.get(i.value).remove(xx.value);
+                }
+                if(referencesBesedtoSlotsMap.get(i.value).isEmpty()){
+                    referencesBesedtoSlotsMap.remove(i.value);
                 }
             }
         }

@@ -6,6 +6,7 @@
 
 package datastructure;
 
+import com.carrotsearch.hppc.IntArrayList;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,16 +17,17 @@ import java.util.List;
 public class MainRule extends Rule {
     
     List<Integer> elements;
+    //int[] elements;
     
     public List<SubRule> relatedSubRules;
     
-    List<Integer> activeSlotIDs;
+    IntArrayList activeSlotIDs;
     
     public MainRule(){
         super();
-        this.elements=new ArrayList<>();
+        this.elements=null;//new ArrayList<>();
         this.relatedSubRules=new ArrayList<>();
-        this.activeSlotIDs=new ArrayList<>();
+        this.activeSlotIDs=new IntArrayList();
         this.ruletype=RuleType.Main;
     }
     
@@ -47,7 +49,7 @@ public class MainRule extends Rule {
         this.elements=elem;
     }
     
-    public void setSlotIDs(List<Integer> slotsIDs){
+    public void setSlotIDs(IntArrayList slotsIDs){
         this.activeSlotIDs=slotsIDs;
     }
     
@@ -55,11 +57,11 @@ public class MainRule extends Rule {
         if(subRules==null || fp==null || cslots==null)
             return null;
         List<SubRule> templist=new ArrayList<>(subRules);
-        List<Integer> slotsIDs=new ArrayList<>(cslots.slots);
+        IntArrayList slotsIDs=new IntArrayList(cslots.slots);
         MainRule mr=new MainRule();
         List<Integer> elems=new ArrayList<>();
         List<Integer> activeSlots=new ArrayList<>();
-        List<Integer> referencesList=new ArrayList<>(cslots.commonReferences);
+        IntArrayList referencesList=new IntArrayList(cslots.commonReferences);
         
         //add (slot pattern)*
         for(int i=0;i<fp.patterns.size();i++){

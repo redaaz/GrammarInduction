@@ -6,6 +6,7 @@
 
 package datastructure;
 
+import com.carrotsearch.hppc.IntArrayList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -56,7 +57,7 @@ public class Slot {
         return this.alternatives.isEmpty();
     }
     
-    public List<Alternative> getAlternatives(List<Integer> indexs){
+    public List<Alternative> getAlternatives(IntArrayList indexs){
         return this.alternatives.stream().filter(x->indexs.contains(x.referenceIndex)).collect(Collectors.toList());
     }
 }

@@ -6,11 +6,11 @@
 
 package datastructure;
 
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
-import it.unimi.dsi.fastutil.ints.IntSet;
-import it.unimi.dsi.fastutil.ints.IntSets;
+
+import com.carrotsearch.hppc.IntArrayList;
+import com.carrotsearch.hppc.IntOpenHashSet;
+import com.carrotsearch.hppc.cursors.IntCursor;
+import com.carrotsearch.sizeof.RamUsageEstimator;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -138,18 +138,31 @@ public class FrequentPattern {
             this.cohesion=0;//to be discussed
             return;
         }
-        Set<Integer> set=new HashSet<>();
-        //IntSet set=new IntOpenHashSet();
-        //IntSets set;
+//        Set<Integer> set=new HashSet();
+//        long t1=System.currentTimeMillis();
+//        for(Integer pp:this.patterns){
+//            set.addAll(((Bitmap)vdb.get(pp)).inputReferences.stream().map(X -> X.inputSentenceID).collect(Collectors.toList()));
+//        }
+//         long t2=System.currentTimeMillis();
         
+        IntOpenHashSet set=new IntOpenHashSet();
         for(Integer pp:this.patterns){
-            set.addAll(((Bitmap)vdb.get(pp)).inputReferences.stream().map(X -> X.inputSentenceID).collect(Collectors.toList()));
+            //((Bitmap)vdb.get(pp)).inputReferences.stream().map(X -> X.inputSentenceID).collect(Collectors.toList());
+            for(Repetition rp:((Bitmap)vdb.get(pp)).inputReferences){
+                set.add(rp.inputSentenceID);
+            }
         }
-        
+//        long t3=System.currentTimeMillis();
+//         
+//        System.out.println("fast: "+(t2-t1));
+//        System.out.println("set: "+(t3-t2));
+//        System.out.println("fast: "+RamUsageEstimator.sizeOf(set));
+//        System.out.println("old: "+RamUsageEstimator.sizeOf(setold));
         if(set.isEmpty())
             this.cohesion=-1;
-        /*PERFORMACE TEST*/System.out.println(set.size());
+        
         this.cohesion=this.sup/(double)set.size();
+        
     }
     
     public double getCohesion(){
@@ -205,33 +218,41 @@ public class FrequentPattern {
         }
         /*PERFORMANCE TEST*/long tt2=System.currentTimeMillis();
         /*PERFORMANCE TEST*/acc1+=tt2-tt1;
-        Set<Integer> uniqueNums = new HashSet<>();
-        uniqueNums.addAll(input.get(minListSizeIndex).stream()
-        .map(x->x.inputSentenceID).collect(Collectors.toList()));
+        //Set<Integer> uniqueNums = new HashSet<>();
+        //uniqueNums.addAll(input.get(minListSizeIndex).stream()
+        //.map(x->x.inputSentenceID).collect(Collectors.toList()));
+        
+        IntOpenHashSet uniqueNums = new IntOpenHashSet();
+        for(Repetition x: input.get(minListSizeIndex))
+            uniqueNums.add(x.inputSentenceID);
         
         /*PERFORMANCE TEST*/long tt3=System.currentTimeMillis();
         /*PERFORMANCE TEST*/acc2+=tt3-tt2;
         for(int i=0;i<input.size();i++){
-            if(i!=minListSizeIndex)
-                uniqueNums.retainAll(new HashSet<>(input.get(i).stream()
-        .map(x->x.inputSentenceID).collect(Collectors.toList())));
+            if(i!=minListSizeIndex){
+                IntOpenHashSet temp=new IntOpenHashSet();
+                for(Repetition hh:input.get(i)){
+                    temp.add(hh.inputSentenceID);
+                }
+                uniqueNums.retainAll(temp);
+            }
         }
         
-        List<Integer> res1=new ArrayList<>(uniqueNums);
+        IntArrayList res1=new IntArrayList(uniqueNums);
         List<Integer> res=new ArrayList<>();
         /*PERFORMANCE TEST*/long tt4=System.currentTimeMillis();
         /*PERFORMANCE TEST*/acc3+=tt4-tt3;
-        for(Integer i: res1){
+        for(IntCursor i: res1){
             //if (General.ContainsSequence(this.patterns,General.toIntegerList(in.get(i).toStringCM_SPAM())))
-            if (General.ContainsSequence(this.patterns,in.get(i).sentenceCode))
-               res.add(i);       
+            if (General.ContainsSequence(this.patterns,in.get(i.value).sentenceCode))
+               res.add(i.value);       
         }
         /*PERFORMANCE TEST*/long tt5=System.currentTimeMillis();
         /*PERFORMANCE TEST*/acc4+=tt5-tt4;
-        /*PERFORMANCE TEST*/System.out.println("tt1 : "+acc1 );
-        /*PERFORMANCE TEST*/System.out.println("tt2 : "+acc2 );
-        /*PERFORMANCE TEST*/System.out.println("tt3 : "+acc3 );
-        /*PERFORMANCE TEST*/System.out.println("tt4 : "+acc4 +" # "+res1.size());
+        //*PERFORMANCE TEST*/System.out.println("tt1 : "+acc1 );
+        //*PERFORMANCE TEST*/System.out.println("tt2 : "+acc2 );
+        //*PERFORMANCE TEST*/System.out.println("tt3 : "+acc3 );
+        //*PERFORMANCE TEST*/System.out.println("tt4 : "+acc4 +" # "+res1.size());
         
         return res;
     }

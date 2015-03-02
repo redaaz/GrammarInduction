@@ -12,11 +12,11 @@ package datastructure;
  */
 public class Repetition {
     
-    public Integer inputSentenceID;
+    public int inputSentenceID;
     
-    public Integer tokenPosition;
+    public int tokenPosition;
     
-    public Repetition(Integer tok,Integer pos){
+    public Repetition(int tok,int pos){
         this.tokenPosition=pos;
         this.inputSentenceID=tok;
     }

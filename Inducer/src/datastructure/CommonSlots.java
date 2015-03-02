@@ -6,6 +6,7 @@
 
 package datastructure;
 
+import com.carrotsearch.hppc.IntArrayList;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,12 +15,12 @@ import java.util.List;
  * @author reda
  */
 public class CommonSlots {
-    public List<Integer> commonReferences;
-    public List<Integer> slots;
+    public IntArrayList commonReferences;
+    public IntArrayList slots;
     
     public CommonSlots(){
-     this.commonReferences=new ArrayList<>();
-     this.slots=new ArrayList<>();
+     this.commonReferences=new IntArrayList();
+     this.slots=new IntArrayList();
     }
     
 }

@@ -6,6 +6,7 @@
 
 package spm.spam;
 
+import com.carrotsearch.hppc.IntObjectOpenHashMap;
 import datastructure.FrequentPattern;
 import datastructure.Sentence;
 import java.util.HashMap;
@@ -24,7 +25,7 @@ public class SPMiningAlgorithm {
     
     // Vertical database
     public Map<Integer, Bitmap> verticalDB = new HashMap<>();
-    
+    //public IntObjectOpenHashMap<Bitmap> verticalDB=new IntObjectOpenHashMap();
     public List<FrequentPattern> runAlgorithm2(List<String> input, double minsupRel){
         return null;
     }

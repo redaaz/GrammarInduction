@@ -1,6 +1,7 @@
 package spm.spam;
 
 
+import com.carrotsearch.hppc.IntObjectOpenHashMap;
 import datastructure.FrequentPattern;
 import datastructure.Repetition;
 import datastructure.Sentence;
@@ -128,6 +129,7 @@ public class AlgoCMSPAM extends SPMiningAlgorithm{
         spam(input, minsupRel, strRes);
         // record end time
         endTime = System.currentTimeMillis();
+        //Runtime.getRuntime().gc();
         // close the file
         /////////writer.close();
         List<FrequentPattern> res=new ArrayList<>();
@@ -153,6 +155,7 @@ public class AlgoCMSPAM extends SPMiningAlgorithm{
             /*PERFORMANCE TEST*/acc4+=third6-third5;
             res.add(x);
         }
+        //Runtime.getRuntime().gc();
         /*PERFORMANCE TEST*/long third000=System.currentTimeMillis();
         /*PERFORMANCE TEST*/long forth=System.currentTimeMillis();
         /*PERFORMANCE TEST*/System.out.println("algo: "+(third00-third0));
@@ -453,8 +456,10 @@ public class AlgoCMSPAM extends SPMiningAlgorithm{
     private void spam(List<Sentence> input, double minsupRel,List<String> results)  {
         // the structure to store the vertical database
         // key: an item    value : bitmap
+        
         verticalDB = new HashMap<Integer, Bitmap>();
-
+        //////verticalDB = new IntObjectOpenHashMap();
+        
         // structure to store the horizontal database
         List<int[]> inMemoryDB = new ArrayList<int[]>();
 
@@ -623,7 +628,7 @@ public class AlgoCMSPAM extends SPMiningAlgorithm{
                         sameItemset = false;
                         continue;
                     }
-
+                    /////888/
                     Bitmap bitmapOfitemJ = verticalDB.get(itemJ);
                     if (bitmapOfitemJ == null || bitmapOfitemJ.getSupport() < minsup) {
                         continue;

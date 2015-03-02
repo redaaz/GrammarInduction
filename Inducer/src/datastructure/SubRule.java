@@ -6,6 +6,7 @@
 
 package datastructure;
 
+import com.carrotsearch.hppc.IntArrayList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -69,7 +70,7 @@ public class SubRule extends Rule {
         if(slot==null)
             return null;
         SubRule sb=new SubRule();
-        List<Integer> referencesList=new ArrayList<>(cSlots.commonReferences);
+        IntArrayList referencesList=new IntArrayList(cSlots.commonReferences);
         List<Alternative> alts=slot.getAlternatives(referencesList);
         sb.setAlternatives(alts);
         sb.setReferencesIndexs(referencesList);

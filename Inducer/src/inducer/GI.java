@@ -6,6 +6,11 @@
 
 package inducer;
 
+import com.carrotsearch.hppc.IntArrayList;
+import com.carrotsearch.hppc.cursors.IntCursor;
+import com.carrotsearch.hppc.sorting.IndirectComparator;
+import com.carrotsearch.hppc.sorting.IndirectComparator.AscendingIntComparator;
+import com.carrotsearch.hppc.sorting.IndirectSort;
 import datastructure.FrequentPattern;
 import datastructure.MainRule;
 import datastructure.Rule;
@@ -35,6 +40,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import spm.spam.SPMiningAlgorithm;
+import text.General;
 import text.PreTextOperation;
 import text.Preprocessing;
 
@@ -63,8 +69,8 @@ public class GI {
     long startWritingTime;
     long endWritingTime;
     
-    long startFreeMemory;
-    long endFreeMemory;
+    double UsedMemory;
+    
     
     int numOfLoops;
     
@@ -122,9 +128,10 @@ public class GI {
         
         mains.stream().forEach((mr) -> {
             Sentence se=mr.toSentence();
-            mr.getReferencesIndexs().stream().forEach(x->{
-                input.set(x, se);
-            });
+            for(IntCursor x:  mr.getReferencesIndexs()){
+                input.set(x.value, se);
+            }
+            
         });
         return input; 
     }
@@ -136,14 +143,22 @@ public class GI {
             return null;
         if(rule.getReferencesIndexs().size()==1)
             return new ArrayList<>();
-        Collections.sort(rule.getReferencesIndexs());
+        int[] temp=rule.getReferencesIndexs().toArray();
+        Arrays.sort(temp);
+        rule.setReferencesIndexs(General.toIntArrayList(temp));
+        
+//        IntArrayList temp=rule.ge.getReferencesIndexs()
+//        int[] tempArr=IndirectSort.mergesort(0, rule.getReferencesIndexs().size(), new AscendingIntComparator(rule.getReferencesIndexs().toArray()));
+//        rule.setReferencesIndexs(IntArrayList.from(tempArr));
+        
+        
         int minIndex=rule.getReferencesIndexs().get(0);
         
-        List<Integer> res=rule.getReferencesIndexs().subList(1, rule.getReferencesIndexs().size());
-        
-        rule.setReferencesIndexs(Arrays.asList(minIndex));
+        //List<Integer> res=rule.getReferencesIndexs().subList(1, rule.getReferencesIndexs().size());
+        List<Integer> res=General.subList(rule.getReferencesIndexs(),1, rule.getReferencesIndexs().size());
+        rule.setReferencesIndexs(IntArrayList.from(minIndex));
         if(rule.getRuleType()==RuleType.Main)
-            ((MainRule)rule).relatedSubRules.stream().forEach(x->x.setReferencesIndexs(Arrays.asList(minIndex)));
+            ((MainRule)rule).relatedSubRules.stream().forEach(x->x.setReferencesIndexs(IntArrayList.from(minIndex)));
         
         return res;
     }
@@ -393,16 +408,12 @@ public class GI {
         return this.endWritingTime-this.startWritingTime;
     }
     
-    public void startPointForFreeMemory(){
-        this.startFreeMemory= Runtime.getRuntime().maxMemory();
+    public double setUsedMemory(double mem){
+        return this.UsedMemory=mem;
     }
     
-    public void endPointForFreeMemory(){
-        this.endFreeMemory= Runtime.getRuntime().maxMemory();
-    }
-    
-    public long getUsedMemoryInMB(){
-        return Math.abs((this.endFreeMemory-this.startFreeMemory)/1000000);
+    public double getUsedMemoryInMB(){
+        return this.UsedMemory;
     }
     
 }

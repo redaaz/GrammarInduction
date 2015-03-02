@@ -6,10 +6,20 @@
 
 package text;
 
+import com.carrotsearch.hppc.IntArrayList;
+import com.carrotsearch.hppc.IntIntOpenHashMap;
+import com.carrotsearch.hppc.IntObjectOpenHashMap;
+import com.carrotsearch.hppc.ObjectArrayList;
+import com.carrotsearch.hppc.ObjectIntOpenHashMap;
+import com.carrotsearch.hppc.ObjectObjectOpenHashMap;
+import com.carrotsearch.hppc.cursors.IntCursor;
+import com.carrotsearch.hppc.cursors.IntObjectCursor;
+import com.carrotsearch.hppc.cursors.ObjectCursor;
 import datastructure.CommonSlots;
 import heuristic.Heuristic;
 import heuristic.LongestMostFrequent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -81,8 +91,8 @@ public class General {
     }
     
     //to siplit an integer list by splitters -returning n+1 lists of slots between splitters (sometimes empty lists added)
-    public static List<List<Integer>> split(List<Integer> toSplit,List<Integer> splitters){
-        List<List<Integer>> res=new ArrayList<>();
+    public static List<IntArrayList> split(List<Integer> toSplit,List<Integer> splitters){
+        List<IntArrayList> res=new ArrayList<>();
         if(toSplit.isEmpty() || splitters.isEmpty())
             return null;
         int lastIndex=0;
@@ -93,33 +103,45 @@ public class General {
                 index++;
             }
             if(lastIndex==index){
-                res.add(new ArrayList<>());
+                res.add(new IntArrayList());
             }
             else{
-                res.add(toSplit.subList(lastIndex, index));    
+                //res.add(toSplit.subList(lastIndex, index));    
+                res.add(subList(toSplit,lastIndex, index));    
             }   
             index++;
             lastIndex=index;
         }
         //the last list
         if(index==toSplit.size()){
-            res.add(new ArrayList<>());
+            res.add(new IntArrayList());
         }
         else{
-           res.add(toSplit.subList(index, toSplit.size()));     
+           //res.add(toSplit.subList(index, toSplit.size()));     
+            res.add(subList(toSplit,index, toSplit.size()));      
         }
         return res;
     }
     
-    public static CommonSlots findCommonReferencesSlots(HashMap<Integer,List<Integer>> referenceToSlots,double minSup){
-        List<List<Integer>> in=new ArrayList<>();
-        HashMap<Integer,Integer> tempIndexsToinputIndexs=new HashMap<>();
-        Iterator it = referenceToSlots.entrySet().iterator();
+    public static CommonSlots findCommonReferencesSlots(IntObjectOpenHashMap<IntArrayList> referenceToSlots,double minSup){
+        ObjectArrayList<IntArrayList> in=new ObjectArrayList();
+        IntIntOpenHashMap tempIndexsToinputIndexs=new IntIntOpenHashMap();
+        //Iterator it = referenceToSlots.entrySet().iterator();
+       /* Iterator it = referenceToSlots.iterator();
         while(it.hasNext()){
              HashMap.Entry pairs = (HashMap.Entry)it.next();
              in.add((List<Integer>)pairs.getValue());
              tempIndexsToinputIndexs.put(in.size()-1, (Integer)pairs.getKey());
         }
+        */
+         Iterator it=referenceToSlots.iterator();
+         while(it.hasNext()){
+              IntObjectCursor intobjectCursor=(IntObjectCursor)it.next();
+              in.add((IntArrayList)intobjectCursor.value);
+              tempIndexsToinputIndexs.put(in.size()-1,intobjectCursor.key);
+                      
+         }
+        
         AlgoCMSPAM algo=new AlgoCMSPAM();
         Heuristic heu=new LongestMostFrequent();
         //CommonSlots cs=intersect(in,algo,heu,minSup,tempIndexsToinputIndexs);
@@ -134,24 +156,34 @@ public class General {
     //tempIndexsToinputIndexs: to convert from 0-based indexs sentences to global indexs
     //this function find the best intersection between slots to build new rules (longest - most frequent)
     @SuppressWarnings("empty-statement")
-    static CommonSlots intersect(List<List<Integer>> lists,HashMap<Integer,Integer> tempIndexsToinputIndexs){
+    static CommonSlots intersect(ObjectArrayList<IntArrayList> lists,IntIntOpenHashMap tempIndexsToinputIndexs){
         if(lists==null || lists.isEmpty())
             return null;
         
-        List<String> slotsStringforEachInput= new ArrayList<>();
+        ObjectArrayList<String> slotsStringforEachInput= new ObjectArrayList();
+        /*
         lists.stream().forEach(li->{
            StringBuilder str=new StringBuilder();
            li.stream().forEach(elem-> str.append(elem));
            slotsStringforEachInput.add(str.toString());
         });
+        */
+        for(ObjectCursor<IntArrayList> li:lists){
+           StringBuilder str=new StringBuilder();
+           for(IntCursor elem: li.value){
+               str.append(elem.value);
+           }
+           slotsStringforEachInput.add(str.toString());
+        }
         
-        HashMap<String,Integer> Counter=new HashMap<>();
+        ObjectIntOpenHashMap<String> Counter=new ObjectIntOpenHashMap();
         int MaxCount=0;
-        List<String> MaxString=new ArrayList<>();
-        HashMap<String,List<Integer>> refIds=new HashMap<>();
+        ObjectArrayList<String> MaxString=new ObjectArrayList();
+        ObjectObjectOpenHashMap<String,IntArrayList> refIds=new ObjectObjectOpenHashMap();
         int IdCounter=0;
-        for(String str:slotsStringforEachInput) {
-            if(Counter.get(str)==null){
+        for(ObjectCursor<String> strC:slotsStringforEachInput) {
+            String str=strC.value;
+            if(!Counter.containsKey(str)){
                 Counter.put(str,1);
             }
             else{
@@ -165,13 +197,13 @@ public class General {
                 
             }else if(Counter.get(str)==MaxCount){
                 if(str.length()>MaxString.get(0).length())
-                    MaxString.add(0, str);
+                    MaxString.insert(0, str);
                 else
                     MaxString.add(str);
                 
             }
             if(refIds.get(str)==null)
-                refIds.put(str, new ArrayList<>());
+                refIds.put(str, new IntArrayList());
             refIds.get(str).add(IdCounter);
             IdCounter++;
         };
@@ -181,9 +213,13 @@ public class General {
         
         //if MaxString.size()>1
         CommonSlots res=new CommonSlots();
-        res.commonReferences=refIds.get(MaxString.get(0)).stream().map(x->tempIndexsToinputIndexs.get(x)).collect(Collectors.toList());
-        
-        res.slots=new ArrayList<>();
+        //res.commonReferences=refIds.get(MaxString.get(0)).stream().map(x->tempIndexsToinputIndexs.get(x)).collect(Collectors.toList());
+        IntArrayList tempo=new IntArrayList();
+        for(IntCursor x:refIds.get(MaxString.get(0))){
+            tempo.add(tempIndexsToinputIndexs.get(x.value));
+        }
+        res.commonReferences=tempo;
+        res.slots=new IntArrayList();
         for(Character cc:MaxString.get(0).toCharArray()){
             res.slots.add(Integer.parseInt(""+cc));
         }
@@ -199,5 +235,37 @@ public class General {
         in.stream().forEach(x->str.append(x).append(" -1 "));
         str.append("-2");
         return str.toString();
+    }
+    
+    public static List<Integer> subList(IntArrayList li,int includedStart,int excludedEnd){
+        List<Integer> res=new ArrayList<>();
+        
+        if(li==null || includedStart>excludedEnd || excludedEnd>li.size())
+            return null;
+        
+        for(int i=includedStart;i<excludedEnd;i++)
+            res.add(li.get(i));
+        
+        return res;
+    }
+    
+    public static IntArrayList subList(List<Integer> li,int includedStart,int excludedEnd){
+        IntArrayList res=new IntArrayList();
+        
+        if(li==null || includedStart>excludedEnd || excludedEnd>li.size())
+            return null;
+        
+        for(int i=includedStart;i<excludedEnd;i++)
+            res.add(li.get(i));
+        
+        return res;
+    }
+    
+    public static IntArrayList toIntArrayList(int[] in){
+        IntArrayList res=new IntArrayList();
+        for(int i:in){
+           res.add(i);
+        }
+        return res;
     }
 }

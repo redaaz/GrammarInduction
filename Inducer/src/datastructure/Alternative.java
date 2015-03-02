@@ -6,32 +6,44 @@
 
 package datastructure;
 
-import java.util.List;
+import com.carrotsearch.hppc.IntArrayList;
+import com.carrotsearch.hppc.cursors.IntCursor;
+
+
+
 
 /**
  *
  * @author reda
  */
 public class Alternative {
-    List<Integer> alterCode;
+    IntArrayList alterCode;
     int referenceIndex;
     
-    public Alternative(List<Integer> AlterCode,int refIndex){
+    public Alternative(IntArrayList AlterCode,int refIndex){
         this.alterCode=AlterCode;
         this.referenceIndex=refIndex;
     }
     
     @Override
     public String toString(){
-        String str="";
-        str = this.alterCode.stream().map((ii) -> WordsDictionary.getWord(ii) + " ").reduce(str, String::concat);
-        return str;
+//        String str="";
+//        str = this.alterCode.stream().map((ii) -> WordsDictionary.getWord(ii) + " ").reduce(str, String::concat);
+        StringBuilder str=new StringBuilder();
+        for(IntCursor x:this.alterCode){
+            str.append(WordsDictionary.getWord(x.value)).append(" ");
+        }
+        return str.toString();
     }
     
     public String toStringCode(){
-        String str="";
-        str = this.alterCode.stream().map(x->""+x+" ").reduce(str,String::concat);
-        return str;
+//        String str="";
+//        str = this.alterCode.stream().map(x->""+x+" ").reduce(str,String::concat);
+        StringBuilder str=new StringBuilder();
+        for(IntCursor x:this.alterCode){
+            str.append(x.value).append(" ");   
+        }
+        return str.toString();
     }
     
     public int getReferenceIndex(){

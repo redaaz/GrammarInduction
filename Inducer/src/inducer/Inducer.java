@@ -6,20 +6,19 @@
 
 package inducer;
 
+import com.carrotsearch.sizeof.RamUsageEstimator;
 import datastructure.FrequentPattern;
 import datastructure.Rule;
 import datastructure.Sentence;
 import heuristic.MostCohesiveLongest;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import org.omg.SendingContext.RunTime;
 import spm.spam.AlgoCMSPAM;
+import spm.tools.MemoryLogger;
 import text.PreTextOperation;
+
 
 /**
  *
@@ -32,40 +31,69 @@ public class Inducer {
      * @throws java.io.IOException
      */
     public static void main(String[] args) throws IOException {
+        /* Total memory currently in use by the JVM */
+        System.out.println("Total memory (bytes): " + 
+        Runtime.getRuntime().totalMemory()/(1024*1024));
+        Integer u=0;
+        System.out.println(u.getClass().toString());
         
+        
+        /*
+        IntArrayList fastset=new IntArrayList();
+        List<Integer> set=new ArrayList<>();
+        for(int i=0;i<100000;i++){
+            fastset.add(i);
+            set.add(i);
+        }
+        long t1=System.currentTimeMillis();
+        fastset.retainAll(fastset);
+        long t2=System.currentTimeMillis();
+        set.retainAll(set);
+        long t3=System.currentTimeMillis();
+        System.out.println("fast: "+RamUsageEstimator.sizeOf(fastset));
+        System.out.println("set: "+RamUsageEstimator.sizeOf(set));
+        System.out.println("fast: "+(t2-t1));
+        System.out.println("set: "+(t3-t2));
+        */
         //Initials
         boolean stop=false;
         int loopCounter=0;
         GI gi=new GI(new AlgoCMSPAM(),new MostCohesiveLongest(),0.005,0.2);
         gi.setTextPreprocessing(null, PreTextOperation.RemovePunctuations);
         List<Long> times=new ArrayList<>();
+        MemoryLogger mem=new MemoryLogger();
         
         //Read the input
         String folderPath="/Users/reda/Documents/NewAlgoTests/";
-        String fileName="50K";
+        String fileName="100k";
         
         gi.startReading();
         List<Sentence> corpus= gi.readTheCorpus(folderPath,fileName);
         gi.corpusSizes.add(corpus.size());
         gi.endReading();
+        //check memory
+        mem.checkMemory();
         
         System.out.println("corpus size:"+corpus.size());
-        System.out.println(Runtime.getRuntime().maxMemory());
-        
-        gi.startPointForFreeMemory();
+       
         gi.startExecution();
         //the algorithm
         while(!stop){
-            
+            //check memory
+            mem.checkMemory();
             //System.out.println();
             System.out.println("loop:"+loopCounter++);
             //(1) find frequent patterns
             //--------------------------
             /*PERFORMANCE TEST*/times.add(System.currentTimeMillis());
+            System.out.println("verticalDB size B:" + RamUsageEstimator.sizeOf(gi.algo.verticalDB)/(1024d*1024d));
             List<FrequentPattern> result= gi.runAlgorithm(corpus);
             /*PERFORMANCE TEST*/times.add(System.currentTimeMillis());
             
             //result.stream().forEach((fp) -> { fp.println(); });
+            
+            //check memory
+            mem.checkMemory();
             
             //(2) find best frequent pattern
             //------------------------------
@@ -86,6 +114,8 @@ public class Inducer {
                 //System.out.println("-- New Rules ("+newRules.size()+")-----");
                 //newRules.stream().forEach(aa1->aa1.println());
             }
+            //check memory
+            mem.checkMemory();
             
             if(newRules.isEmpty()){
                 stop=true;
@@ -106,10 +136,13 @@ public class Inducer {
             System.out.println("corpus size= "+corpus.size());
             Runtime.getRuntime().gc();
         }
+        //check memory
+        mem.checkMemory();
+        
         gi.setNumOfLoops(loopCounter);
         
         gi.endExecution();
-        gi.endPointForFreeMemory();
+        
         //System.out.println("-- The Corpus -----");
         //System.out.println("corpus size:"+corpus.size());
         //corpus.stream().forEach(qq-> qq.println());
@@ -118,9 +151,8 @@ public class Inducer {
         gi.writeRules(folderPath, fileName +"_rules");
         gi.writeTheCorpus(corpus, folderPath, fileName+"_output");
         gi.endWriting();
-        //Report
-        gi.writeExperimentReport(folderPath,fileName);
         
+        gi.setUsedMemory(mem.getMaxMemory());
         
         for(int i=0;i<times.size();i=i+8){
             if(i+7<times.size()){
@@ -131,8 +163,44 @@ public class Inducer {
                 System.out.println("-------------------------");
             }
         }
-        System.out.println("# of elems"+times.size());
-        System.out.println("sum:"+times.stream().collect(Collectors.reducing(Long::sum)));
+        System.out.println("# of elems "+times.size());
+        
+        //Report
+        gi.writeExperimentReport(folderPath,fileName);          
+        
+        
+        InetAddress ip;
+        ip = InetAddress.getLocalHost();
+        System.out.println("Current host name : " + ip.getHostName());
+        System.out.println("Current IP address : " + ip.getHostAddress());
+        String nameOS= System.getProperty("os.name");
+        System.out.println("Operating system Name=>"+ nameOS);
+        String osType= System.getProperty("os.arch");
+        System.out.println("Operating system type =>"+ osType);
+        String osVersion= System.getProperty("os.version");
+        System.out.println("Operating system version =>"+ osVersion);
+         
+        System.out.println(System.getenv("PROCESSOR_IDENTIFIER"));
+        System.out.println(System.getenv("PROCESSOR_ARCHITECTURE"));
+        System.out.println(System.getenv("PROCESSOR_ARCHITEW6432"));
+        System.out.println(System.getenv("NUMBER_OF_PROCESSORS"));
+        
+         /* Total number of processors or cores available to the JVM */
+    System.out.println("Available processors (cores): " + 
+        Runtime.getRuntime().availableProcessors());
+ 
+    /* Total amount of free memory available to the JVM */
+    System.out.println("Free memory (bytes): " + 
+        Runtime.getRuntime().freeMemory()/(1024*1024));
+ 
+    /* This will return Long.MAX_VALUE if there is no preset limit */
+    long maxMemory = Runtime.getRuntime().maxMemory();
+    /* Maximum amount of memory the JVM will attempt to use */
+    System.out.println("Maximum memory (bytes): " + 
+        (maxMemory == Long.MAX_VALUE ? "no limit" : maxMemory/(1024*1024)));
+ 
+    /* Total memory currently in use by the JVM */
+    System.out.println("Total memory (bytes): " + 
+        Runtime.getRuntime().totalMemory()/(1024*1024));
     }
-    
 }
