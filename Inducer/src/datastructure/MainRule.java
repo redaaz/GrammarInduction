@@ -96,5 +96,14 @@ public class MainRule extends Rule {
         return res;
     }
     
+    public int getGenerativeCount(){
+        int res=1;
+        for(SubRule r: this.relatedSubRules)
+        {
+            if(r.getRuleType()==RuleType.Sub)
+                res*=r.getUniqueAlternatives();
+        }
+        return res;
+    }
     
 }

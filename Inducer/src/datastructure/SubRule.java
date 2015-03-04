@@ -7,10 +7,14 @@
 package datastructure;
 
 import com.carrotsearch.hppc.IntArrayList;
+import com.carrotsearch.hppc.IntContainer;
+import com.carrotsearch.hppc.IntIntOpenHashMap;
+import com.carrotsearch.hppc.ObjectOpenHashSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import text.General;
 
@@ -61,6 +65,26 @@ public class SubRule extends Rule {
         return str.substring(0, str.length()-3);
     }    
     
+    public int getUniqueAlternatives(){
+        if(this.alternatives.isEmpty())
+            return 0;
+        int uniqueCount=0;
+        int SecMainRules=1;
+        ObjectOpenHashSet<Alternative> set=new ObjectOpenHashSet();
+        for(Alternative al:this.alternatives)
+        {
+            if(al.referenceIndex!=-1){
+                set.add(al);
+            }
+            else{
+                SecMainRules*=al.getRelatedSecondaryMainRule().getGenerativeCount();
+            }
+        }
+        uniqueCount=set.size();
+        SecMainRules=SecMainRules==1?0:SecMainRules;
+        return uniqueCount+SecMainRules;
+    }
+    
     @Override
     public RuleType getRuleType(){
         return this.ruletype;
@@ -76,4 +100,55 @@ public class SubRule extends Rule {
         sb.setReferencesIndexs(referencesList);
         return sb;
     }
+    
+    public List<Sentence> getAlternatives(){
+        List<Sentence> res=new ArrayList<>();
+        
+        for(Alternative alt: this.alternatives){
+            Sentence sen=new Sentence();
+            sen.setSentenceCode(alt.alterCode);
+            sen.setOriginalReference(alt.getReferenceIndex());
+            res.add(sen);
+        }
+        
+        return res;
+    }
+    
+    public void updateAlternatives(List<Sentence> input,List<Rule> newSecRules){
+        List<Alternative> alter=new ArrayList<>();
+        
+        for(Sentence se:input){
+            IntArrayList code=new IntArrayList();
+            for(Integer i: se.sentenceCode)
+                code.add((int)i);
+            Alternative al=new Alternative( code,se.getOriginalReference());
+            if(se.getOriginalReference()==-1)
+            {
+                for(Rule r:newSecRules){
+                    if(r.ruletype==RuleType.SecondaryMain && (Objects.equals(WordsDictionary.getWordIndex(r.leftSide), se.sentenceCode.get(0)))){
+                        al.setRelatedSecondaryMainRule((SecondaryMainRule) r);
+                    }
+                }
+                
+            }
+            if(al.getRelatedSecondaryMainRule()==null && al.getReferenceIndex()==-1){
+                String uuu=WordsDictionary.getWord(al.alterCode.get(0));
+                int u=9+3;
+            }
+            alter.add(al);
+        }
+        this.alternatives=alter;
+    }
+    
+    public IntIntOpenHashMap getOrderedIndexToOriginalIndexMap(){
+        IntIntOpenHashMap res=new IntIntOpenHashMap();
+        
+        for(int i=0;i<this.referencesIndexs.size();i++){
+            res.put(i, this.referencesIndexs.get(i));
+        }
+        
+        return res;
+    }
+    
+    
 }

@@ -19,6 +19,7 @@ import com.carrotsearch.hppc.cursors.IntCursor;
 public class Alternative {
     IntArrayList alterCode;
     int referenceIndex;
+    SecondaryMainRule relatedSecondaryMainRule=null;
     
     public Alternative(IntArrayList AlterCode,int refIndex){
         this.alterCode=AlterCode;
@@ -65,4 +66,11 @@ public class Alternative {
         return hash;
     }
     
+    public void setRelatedSecondaryMainRule(SecondaryMainRule smr){
+        this.relatedSecondaryMainRule=smr;
+    }
+    
+    public SecondaryMainRule getRelatedSecondaryMainRule(){
+        return this.relatedSecondaryMainRule;
+    }
 }

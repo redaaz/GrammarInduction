@@ -8,6 +8,7 @@ package datastructure;
 
 
 import com.carrotsearch.hppc.IntArrayList;
+import com.carrotsearch.hppc.IntIntOpenHashMap;
 import com.carrotsearch.hppc.IntObjectOpenHashMap;
 import com.carrotsearch.hppc.cursors.IntCursor;
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ import text.General;
  */
 public class Rule {
     protected RuleType ruletype;
-    protected static int idCounter=0;
+    public static int idCounter=0;
     protected int ruleID;
     protected String leftSide;
     public IntArrayList referencesIndexs;
@@ -135,5 +136,51 @@ public class Rule {
     public RuleType getRuleType(){
         return null;
     }
+    
+    public static List<Rule> convertToSecondaryRules(List<Rule> input,SubRule sourceSubRule){
+        List<Rule> res=new ArrayList<>();
+        IntObjectOpenHashMap<IntArrayList> mainIDToRelatedSubIDs=new IntObjectOpenHashMap();
+        IntIntOpenHashMap rulesIDToResIndex=new IntIntOpenHashMap();
+        
+        for(Rule r: input){
+            if(r.ruletype==RuleType.Main){
+                SecondaryMainRule smr=new SecondaryMainRule((MainRule)r);
+                //smr.setReferencesIndexs(smr.getReferencesIndexs());
+                smr.setSourceSubRule(sourceSubRule);
+                IntArrayList ids=new IntArrayList();
+                for(SubRule sb: ((MainRule)r).relatedSubRules){
+                    ids.add(sb.ruleID);
+                }
+                mainIDToRelatedSubIDs.put(r.ruleID, ids);
+                
+                res.add(smr);
+                rulesIDToResIndex.put( smr.ruleID,res.size()-1);
+            }else if(r.ruletype==RuleType.Sub){
+                SecondarySubRule ssb=new SecondarySubRule((SubRule)r);
+                //ssb.setReferencesIndexs(ssb.getReferencesIndexs());
+
+                
+                res.add(ssb);
+                rulesIDToResIndex.put( ssb.ruleID,res.size()-1);
+            }
+        }
+        
+        for(Rule r: res){
+            if(r.ruletype==RuleType.SecondaryMain){
+                List<SubRule> list=new ArrayList<>();
+                for(IntCursor i: mainIDToRelatedSubIDs.get(r.ruleID)){
+                    list.add((SecondarySubRule) res.get(rulesIDToResIndex.get(i.value)));
+                }
+                ((SecondaryMainRule)r).relatedSubRules=list;
+            }
+        }
+        
+        return res;
+    }
+    
+    public int getRuleID(){
+        return this.ruleID;
+    }
+    
     
 }

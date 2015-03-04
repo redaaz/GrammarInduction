@@ -6,6 +6,8 @@
 
 package datastructure;
 
+import com.carrotsearch.hppc.IntArrayList;
+import com.carrotsearch.hppc.cursors.IntCursor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -23,6 +25,9 @@ public class Sentence {
     public Sentence(){
         sentenceCode=new ArrayList<>();
     }
+    
+    //only in case of sub rules
+    private int originalReference=-1;
     
     //to construct new instance- consider whitespaces as delimiter 
     public Sentence(String sen){
@@ -48,6 +53,13 @@ public class Sentence {
     
     public int getLength(){
         return sentenceCode.size();
+    }
+    
+    public void setSentenceCode(IntArrayList in){
+        this.sentenceCode=new ArrayList<>();
+        for(IntCursor i:in){
+            this.sentenceCode.add(i.value);
+        }
     }
     
     //toString returns original words with additional whitespace at end
@@ -91,5 +103,13 @@ public class Sentence {
     
     public void println(){
         System.out.println(this.toString());
+    }
+    
+    public void setOriginalReference(int in){
+        this.originalReference=in;
+    }
+    
+    public int getOriginalReference(){
+        return this.originalReference;
     }
 }
