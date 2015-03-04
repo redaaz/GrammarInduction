@@ -12,6 +12,8 @@ package datastructure;
  */
 public enum RuleType {
     Main,
-    Sub
+    Sub,
+    SecondaryMain,
+    SecondarySub
     
 }
