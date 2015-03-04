@@ -6,13 +6,13 @@
 
 package inducer;
 
-import com.carrotsearch.sizeof.RamUsageEstimator;
 import datastructure.FrequentPattern;
 import datastructure.Rule;
+import datastructure.RuleType;
 import datastructure.Sentence;
+import datastructure.SubRule;
 import heuristic.MostCohesiveLongest;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import spm.spam.AlgoCMSPAM;
@@ -34,9 +34,6 @@ public class Inducer {
         /* Total memory currently in use by the JVM */
         System.out.println("Total memory (bytes): " + 
         Runtime.getRuntime().totalMemory()/(1024*1024));
-        Integer u=0;
-        System.out.println(u.getClass().toString());
-        
         
         /*
         IntArrayList fastset=new IntArrayList();
@@ -59,47 +56,45 @@ public class Inducer {
         boolean stop=false;
         int loopCounter=0;
         GI gi=new GI(new AlgoCMSPAM(),new MostCohesiveLongest(),0.005,0.2);
+        //GI gi=new GI(new AlgoCMSPAM(),new MostCohesiveLongest(),0.5,0.5);
         gi.setTextPreprocessing(null, PreTextOperation.RemovePunctuations);
-        List<Long> times=new ArrayList<>();
-        MemoryLogger mem=new MemoryLogger();
+        
+        MemoryLogger log=new MemoryLogger();
         
         //Read the input
         String folderPath="/Users/reda/Documents/NewAlgoTests/";
-        String fileName="100k";
+        String fileName="eng(466864)";
         
-        gi.startReading();
         List<Sentence> corpus= gi.readTheCorpus(folderPath,fileName);
-        gi.corpusSizes.add(corpus.size());
-        gi.endReading();
+        
         //check memory
-        mem.checkMemory();
+        log.checkMemory();
         
         System.out.println("corpus size:"+corpus.size());
        
-        gi.startExecution();
+        gi.startBasicExecution();
         //the algorithm
         while(!stop){
             //check memory
-            mem.checkMemory();
-            //System.out.println();
+            log.checkMemory();
+            
             System.out.println("loop:"+loopCounter++);
             //(1) find frequent patterns
             //--------------------------
-            /*PERFORMANCE TEST*/times.add(System.currentTimeMillis());
-            System.out.println("verticalDB size B:" + RamUsageEstimator.sizeOf(gi.algo.verticalDB)/(1024d*1024d));
+            /*PERFORMANCE TEST*/log.addTime();
             List<FrequentPattern> result= gi.runAlgorithm(corpus);
-            /*PERFORMANCE TEST*/times.add(System.currentTimeMillis());
+            /*PERFORMANCE TEST*/log.addTime();
             
             //result.stream().forEach((fp) -> { fp.println(); });
             
             //check memory
-            mem.checkMemory();
+            log.checkMemory();
             
             //(2) find best frequent pattern
             //------------------------------
-            /*PERFORMANCE TEST*/times.add(System.currentTimeMillis());
+            /*PERFORMANCE TEST*/log.addTime();
             FrequentPattern bestFI=gi.heuristic.chooseFrequentPattern(result);
-            /*PERFORMANCE TEST*/times.add(System.currentTimeMillis());
+            /*PERFORMANCE TEST*/log.addTime();
             if(bestFI==null){
                 stop=true;
                 continue;
@@ -107,15 +102,12 @@ public class Inducer {
             //bestFI.println();
             //(3) make rules
             //--------------
-            /*PERFORMANCE TEST*/times.add(System.currentTimeMillis());
+            /*PERFORMANCE TEST*/log.addTime();
             List<Rule> newRules=Rule.makeRules(corpus, bestFI,gi.minSup2);
-            /*PERFORMANCE TEST*/times.add(System.currentTimeMillis());
-            if(!newRules.isEmpty()) {
-                //System.out.println("-- New Rules ("+newRules.size()+")-----");
-                //newRules.stream().forEach(aa1->aa1.println());
-            }
+            /*PERFORMANCE TEST*/log.addTime();
+            
             //check memory
-            mem.checkMemory();
+            log.checkMemory();
             
             if(newRules.isEmpty()){
                 stop=true;
@@ -126,10 +118,9 @@ public class Inducer {
 
             //(4) update the corpus
             //---------------------
-            //corpus=gi.replaceWithNewRules(corpus, newRules);
-            /*PERFORMANCE TEST*/times.add(System.currentTimeMillis());
-            corpus=gi.updateData(corpus, newRules);
-            /*PERFORMANCE TEST*/times.add(System.currentTimeMillis());
+            /*PERFORMANCE TEST*/log.addTime();
+            corpus=gi.updateData(corpus, newRules,RuleType.Main);
+            /*PERFORMANCE TEST*/log.addTime();
             gi.corpusSizes.add(corpus.size());
             //System.out.println("-- The Corpus -----");
             //corpus.stream().forEach(qq-> qq.println());
@@ -137,70 +128,51 @@ public class Inducer {
             Runtime.getRuntime().gc();
         }
         //check memory
-        mem.checkMemory();
+        log.checkMemory();
         
-        gi.setNumOfLoops(loopCounter);
+        gi.setBasicLoopsCount(loopCounter);
+        gi.setBasicRulesCount();
+        gi.endBasicExecution();
         
-        gi.endExecution();
+        List<Rule> tempRules=new ArrayList<>();
+        boolean fail =false;
         
-        //System.out.println("-- The Corpus -----");
-        //System.out.println("corpus size:"+corpus.size());
-        //corpus.stream().forEach(qq-> qq.println());
+        List<SubRule> toAnalyse=new ArrayList<>(); 
+        gi.InducedRules.stream().forEach(x->{
+            if(x.getRuleType()==RuleType.Sub || x.getRuleType()==RuleType.SecondarySub)
+                toAnalyse.add((SubRule) x);
+        });
         
-        gi.startWriting();
-        gi.writeRules(folderPath, fileName +"_rules");
-        gi.writeTheCorpus(corpus, folderPath, fileName+"_output");
-        gi.endWriting();
+        //gi.setSencondaryAnalysingParameters(0.05d,2);   
+        gi.setSencondaryAnalysingParameters(0.05d,20);   
+            
+        gi.startSecondaryExecution(); 
+        int SubLoop=0;
+        while(!fail){
+            System.out.println("toAnalyse size: "+toAnalyse.size());
+            tempRules = gi.analyseSubRules(toAnalyse,gi,log);
+            gi.InducedRules.addAll(tempRules);
+            if(toAnalyse.isEmpty())
+                fail=true;
+            SubLoop++;
+        }
+        gi.setSecondaryLoopsCount(SubLoop);
+        gi.endSecondaryExecution();
+        gi.setUsedMemory(log.getMaxMemory());
         
-        gi.setUsedMemory(mem.getMaxMemory());
-        
-        for(int i=0;i<times.size();i=i+8){
-            if(i+7<times.size()){
-                System.out.println("Algorithm : "+(times.get(i+1)-times.get(i)));
-                System.out.println("heuristic : "+(times.get(i+3)-times.get(i+2)));
-                System.out.println("makeRules : "+(times.get(i+5)-times.get(i+4)));
-                System.out.println("update    : "+(times.get(i+7)-times.get(i+6)));
+        for(int i=0;i<log.times.size();i=i+8){
+            if(i+7<log.times.size()){
+                System.out.println("Algorithm : "+(log.times.get(i+1)-log.times.get(i)));
+                System.out.println("heuristic : "+(log.times.get(i+3)-log.times.get(i+2)));
+                System.out.println("makeRules : "+(log.times.get(i+5)-log.times.get(i+4)));
+                System.out.println("update    : "+(log.times.get(i+7)-log.times.get(i+6)));
                 System.out.println("-------------------------");
             }
         }
-        System.out.println("# of elems "+times.size());
+        System.out.println("# of elems "+log.times.size());
         
         //Report
-        gi.writeExperimentReport(folderPath,fileName);          
+        gi.writeTheResults(folderPath,fileName,corpus);          
         
-        
-        InetAddress ip;
-        ip = InetAddress.getLocalHost();
-        System.out.println("Current host name : " + ip.getHostName());
-        System.out.println("Current IP address : " + ip.getHostAddress());
-        String nameOS= System.getProperty("os.name");
-        System.out.println("Operating system Name=>"+ nameOS);
-        String osType= System.getProperty("os.arch");
-        System.out.println("Operating system type =>"+ osType);
-        String osVersion= System.getProperty("os.version");
-        System.out.println("Operating system version =>"+ osVersion);
-         
-        System.out.println(System.getenv("PROCESSOR_IDENTIFIER"));
-        System.out.println(System.getenv("PROCESSOR_ARCHITECTURE"));
-        System.out.println(System.getenv("PROCESSOR_ARCHITEW6432"));
-        System.out.println(System.getenv("NUMBER_OF_PROCESSORS"));
-        
-         /* Total number of processors or cores available to the JVM */
-    System.out.println("Available processors (cores): " + 
-        Runtime.getRuntime().availableProcessors());
- 
-    /* Total amount of free memory available to the JVM */
-    System.out.println("Free memory (bytes): " + 
-        Runtime.getRuntime().freeMemory()/(1024*1024));
- 
-    /* This will return Long.MAX_VALUE if there is no preset limit */
-    long maxMemory = Runtime.getRuntime().maxMemory();
-    /* Maximum amount of memory the JVM will attempt to use */
-    System.out.println("Maximum memory (bytes): " + 
-        (maxMemory == Long.MAX_VALUE ? "no limit" : maxMemory/(1024*1024)));
- 
-    /* Total memory currently in use by the JVM */
-    System.out.println("Total memory (bytes): " + 
-        Runtime.getRuntime().totalMemory()/(1024*1024));
     }
 }

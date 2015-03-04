@@ -1,4 +1,7 @@
 package spm.tools;
+
+import com.carrotsearch.hppc.LongArrayList;
+
 /*
  *  Copyright (c) 2008-2012 Philippe Fournier-Viger
  * 
@@ -33,6 +36,8 @@ public class MemoryLogger {
 	// variable to store the maximum memory usage
 	private double maxMemory = 0;
 	
+        public LongArrayList times=new LongArrayList() ;
+        
 	/**
 	 * Method to obtain the only instance of this class
 	 * @return instance of MemoryLogger
@@ -53,7 +58,7 @@ public class MemoryLogger {
 	 * Reset the maximum amount of memory recorded.
 	 */
 	public void reset(){
-		maxMemory = 0;
+		//maxMemory = 0;
 	}
 	
 	/**
@@ -67,4 +72,8 @@ public class MemoryLogger {
 			maxMemory = currentMemory;
 		}
 	}
+        
+        public void addTime(){
+            this.times.add(System.currentTimeMillis());
+        }
 }
