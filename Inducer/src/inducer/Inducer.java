@@ -6,19 +6,22 @@
 
 package inducer;
 
+import com.carrotsearch.hppc.ObjectArrayList;
+import com.carrotsearch.sizeof.RamUsageEstimator;
 import datastructure.FrequentPattern;
 import datastructure.Rule;
 import datastructure.RuleType;
 import datastructure.Sentence;
 import datastructure.SubRule;
 import heuristic.MostCohesiveLongest;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import spm.spam.AlgoCMSPAM;
 import spm.tools.MemoryLogger;
 import text.PreTextOperation;
-
 
 /**
  *
@@ -34,6 +37,8 @@ public class Inducer {
         /* Total memory currently in use by the JVM */
         System.out.println("Total memory (bytes): " + 
         Runtime.getRuntime().totalMemory()/(1024*1024));
+        
+        
         
         /*
         IntArrayList fastset=new IntArrayList();
@@ -55,15 +60,23 @@ public class Inducer {
         //Initials
         boolean stop=false;
         int loopCounter=0;
-        GI gi=new GI(new AlgoCMSPAM(),new MostCohesiveLongest(),0.005,0.2);
+        //GI gi=new GI(new AlgoCMSPAM(),new MostCohesiveLongest(),0.005,0.2);
+        GI gi=new GI(new AlgoCMSPAM(),new MostCohesiveLongest(),0.01,0.2);
         //GI gi=new GI(new AlgoCMSPAM(),new MostCohesiveLongest(),0.5,0.5);
         gi.setTextPreprocessing(null, PreTextOperation.RemovePunctuations);
         
         MemoryLogger log=new MemoryLogger();
         
         //Read the input
-        String folderPath="/Users/reda/Documents/NewAlgoTests/";
-        String fileName="eng(466864)";
+        //String folderPath="/Users/reda/Documents/NewAlgoTests/";
+        String fileName;
+        String folderPath="/Users/reda/Downloads/rt-polaritydata/rt-polaritydata/";
+        if(args.length==0){
+            fileName="neg";
+        }
+        else{
+            fileName=args[0];
+        }
         
         List<Sentence> corpus= gi.readTheCorpus(folderPath,fileName);
         
@@ -144,7 +157,8 @@ public class Inducer {
         });
         
         //gi.setSencondaryAnalysingParameters(0.05d,2);   
-        gi.setSencondaryAnalysingParameters(0.05d,20);   
+        //gi.setSencondaryAnalysingParameters(0.05d,20);   
+        gi.setSencondaryAnalysingParameters(0.05d,5);   
             
         gi.startSecondaryExecution(); 
         int SubLoop=0;
@@ -159,7 +173,7 @@ public class Inducer {
         gi.setSecondaryLoopsCount(SubLoop);
         gi.endSecondaryExecution();
         gi.setUsedMemory(log.getMaxMemory());
-        
+        /*
         for(int i=0;i<log.times.size();i=i+8){
             if(i+7<log.times.size()){
                 System.out.println("Algorithm : "+(log.times.get(i+1)-log.times.get(i)));
@@ -170,7 +184,7 @@ public class Inducer {
             }
         }
         System.out.println("# of elems "+log.times.size());
-        
+        */
         //Report
         gi.writeTheResults(folderPath,fileName,corpus);          
         

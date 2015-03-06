@@ -158,11 +158,11 @@ public class AlgoCMSPAM extends SPMiningAlgorithm{
         //Runtime.getRuntime().gc();
         /*PERFORMANCE TEST*/long third000=System.currentTimeMillis();
         /*PERFORMANCE TEST*/long forth=System.currentTimeMillis();
-        /*PERFORMANCE TEST*/System.out.println("algo: "+(third00-third0));
-        /*PERFORMANCE TEST*/System.out.println("acc1: "+acc1);
-        /*PERFORMANCE TEST*/System.out.println("acc2: "+acc2);
-        /*PERFORMANCE TEST*/System.out.println("acc3: "+acc3);
-        /*PERFORMANCE TEST*/System.out.println("acc4: "+acc4);
+        //*PERFORMANCE TEST*/System.out.println("algo: "+(third00-third0));
+        //*PERFORMANCE TEST*/System.out.println("acc1: "+acc1);
+        //*PERFORMANCE TEST*/System.out.println("acc2: "+acc2);
+        //*PERFORMANCE TEST*/System.out.println("acc3: "+acc3);
+        //*PERFORMANCE TEST*/System.out.println("acc4: "+acc4);
         
         ///*PERFORMANCE TEST*/System.out.println("acc6: "+(third000-third00));
         

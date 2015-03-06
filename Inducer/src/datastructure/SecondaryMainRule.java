@@ -42,8 +42,8 @@ public class SecondaryMainRule extends MainRule{
     }
     
     @Override
-    public int getGenerativeCount(){
-        int res=1;
+    public Long getGenerativeCount(){
+        long res=1;
         for(SubRule r: this.relatedSubRules)
         {
             if(r.getRuleType()==RuleType.SecondarySub)

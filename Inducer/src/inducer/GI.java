@@ -261,38 +261,19 @@ public class GI {
     
     public List<Sentence> readTheCorpus(String folderPath,String fileName) throws IOException{
         startReading();
-        List<String> inin=GI.read(folderPath+fileName);
+        List<String> inin=General.read(folderPath,fileName);
         this.inputSize=inin.size();
         endReading();
         corpusSizes.add(inin.size());
         return buildSentencesCorpus(inin);
     }
     
-    public static void write(List<String> records,String outputPath,String filename) throws IOException {
-        int bufSize=(int) Math.pow(1024, 2);
-        File file;
-        if(outputPath==null){
-            file= new File("foo", ".txt");
-        }
-        else{
-            file=new File(outputPath,filename+".txt");
-        }
-        try {
-            FileWriter writer = new FileWriter(file);
-            BufferedWriter bufferedWriter = new BufferedWriter(writer, bufSize);
-
-            System.out.print("Writing buffered (buffer size: " + bufSize + ")... ");
-            write1(records, bufferedWriter);
-        } finally {
-            // comment this out if you want to inspect the files afterward
-            //file.delete();
-        }
-    }
+    
 
     public void writeTheCorpus(List<Sentence> input,String folderPath, String fileName) throws IOException{
         List<String> in=input.stream().map(x-> x.toString()).collect(Collectors.toList());
         this.outputSize=input.size();
-        write(in,folderPath,fileName);
+        General.write(in,folderPath,fileName);
     }
     
     public void setBasicLoopsCount(int x){
@@ -342,7 +323,7 @@ public class GI {
         rep.add("Initial Corpus Size: "+this.inputSize);
         rep.add("Final Corpus Size: "+this.outputSize);
         double compressionRatio=((this.inputSize-this.outputSize)*100)/(double)this.inputSize;
-        rep.add("Compression Ratio: "+ Math.round(compressionRatio*100.0)/100.0+"%");
+        rep.add("Compression Ratio: "+ General.getRoundedValue(compressionRatio)+"%");
         rep.add("# of Induced Rules: "+this.InducedRules.size());
         rep.add("Basic Rules: "+this.basicRules);
         rep.add("Secondary Rules: "+(this.InducedRules.size()-this.basicRules));
@@ -352,7 +333,7 @@ public class GI {
         rep.add("Productive Sen.: "+(this.inputSize- this.getNonProductiveInput()));
         rep.add("Generating Power (sen.): "+this.getGenerativeCount());
         Double ratio=((double)100* this.getGenerativeCount())  /(this.inputSize- this.getNonProductiveInput()) ;
-        rep.add("Generating Ratio : "+Math.round(ratio*100.0)/100.0  +"%");
+        rep.add("Generating Ratio : "+General.getRoundedValue(ratio)  +"%");
         rep.add("");
         rep.add("TEXT PREPROCESSING INFO");
         rep.add("-----------------------");
@@ -364,31 +345,9 @@ public class GI {
         for(Integer i: this.corpusSizes){
             rep.add(""+i);
         }
-        write(rep,folderPath,inputFileName);
+        General.write(rep,folderPath,inputFileName);
     }
     
-    private static void write1(List<String> records, Writer writer) throws IOException {
-        long start = System.currentTimeMillis();
-        for (String record: records) {
-            writer.write(record+"\n");
-        }
-        writer.flush();
-        writer.close();
-        long end = System.currentTimeMillis();
-        System.out.println((end - start) / 1000f + " seconds");
-    }
-
-    private static List<String> read(String filePath) throws FileNotFoundException, IOException{
-        BufferedReader br = new BufferedReader(new FileReader(filePath+".txt"));
-        String line;
-        List<String> in = new ArrayList<>();
-        
-        while ((line = br.readLine()) != null) {
-            in.add(line);
-        }
-        br.close();
-        return in;
-    }
     
     private List<Sentence> buildSentencesCorpus(List<String> input) {
         List<Sentence> res=new ArrayList<>();
@@ -431,7 +390,16 @@ public class GI {
     
     public void writeRules(String outputPath, String filename) throws IOException{
         List<Rule> rules=this.InducedRules;
-         int bufSize=(int) Math.pow(1024, 2);
+        //write start rule
+        StringBuilder str=new StringBuilder();
+        str.append("<S> -> ");
+        for(Rule r:rules){
+            if(r.getRuleType()==RuleType.Main){
+                str.append(r.getLeftSide()).append("  | ");
+            }
+        }
+        
+        int bufSize=(int) Math.pow(1024, 2);
         File file;
         if(outputPath==null){
             file= new File("foo", ".txt");
@@ -445,7 +413,10 @@ public class GI {
 
             System.out.print("Writing buffered (buffer size: " + bufSize + ")... ");
             List<String> rul=rules.stream().map(x->x.toString()).collect(Collectors.toList());
-            write1(rul, bufferedWriter);
+            if(rul.size()>0)
+                rul.add(0, str.toString().substring(0, str.length()-3));
+            
+            General.write1(rul, bufferedWriter);
         } finally {
             // comment this out if you want to inspect the files afterward
             //file.delete();
@@ -544,7 +515,7 @@ public class GI {
             /*PERFORMANCE TEST*/log.addTime();
             List<FrequentPattern> result= gi.algo.runAlgorithm(input,min);
             /*PERFORMANCE TEST*/log.addTime();
-            /************/System.out.println("Rule.idCounter: "+Rule.idCounter);
+            
             log.checkMemory();
             
             //(2) find best frequent pattern
@@ -556,14 +527,13 @@ public class GI {
                 stop=true;
                 continue;
             }
-            /************/System.out.println("Rule.idCounter: "+Rule.idCounter);
+            
             //(3) make rules
             //--------------
             /*PERFORMANCE TEST*/log.addTime();
             List<Rule> newRules=Rule.makeRules(input, bestFI,min);
             /*PERFORMANCE TEST*/log.addTime();
-            /************/System.out.println("Rule.idCounter: "+Rule.idCounter);
-            /************/System.out.println("newRules : "+newRules.size());
+            
             log.checkMemory();
             
             if(newRules.isEmpty()){
@@ -573,7 +543,7 @@ public class GI {
             
             subInducedRules.addAll(newRules);
             
-            /************/System.out.println("Rule.idCounter: "+Rule.idCounter);
+            
             
             //(4) update the corpus
             //---------------------
@@ -582,16 +552,16 @@ public class GI {
             /*PERFORMANCE TEST*/log.addTime();
             //input.stream().forEach(x->x.println());
             //newSecRules.stream().forEach(x->x.getReferencesIndexs().toString());
-            /************/System.out.println("Rule.idCounter: "+Rule.idCounter);
+            
             List<Rule> newSecRules=Rule.convertToSecondaryRules(newRules,subRule);
             //List<Rule> newSecRules=Rule.convertToSecondaryRules(subInducedRules.subList(subInducedRules.size()-newRules.size(), subInducedRules.size()),subRule);
-            /************/System.out.println("Rule.idCounter: "+Rule.idCounter);
+            
             finalRules.addAll(newSecRules);
-            /************/System.out.println("Rule.idCounter: "+Rule.idCounter);
+            
             newSecRules.stream().filter(x->x.getRuleType()==RuleType.SecondarySub).forEach(x->toAnalyse.add((SecondarySubRule)x));
-            /************/System.out.println("Rule.idCounter: "+Rule.idCounter);
+            
             updateInducedRule(input,subRule,finalRules);
-            /************/System.out.println("Rule.idCounter: "+Rule.idCounter);
+            
             System.out.println("sub corpus size= "+input.size());
             Runtime.getRuntime().gc();
         }

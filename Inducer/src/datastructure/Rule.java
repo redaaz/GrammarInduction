@@ -182,5 +182,7 @@ public class Rule {
         return this.ruleID;
     }
     
-    
+    public String getLeftSide(){
+        return this.leftSide;
+    }
 }

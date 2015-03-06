@@ -18,6 +18,14 @@ import com.carrotsearch.hppc.cursors.ObjectCursor;
 import datastructure.CommonSlots;
 import heuristic.Heuristic;
 import heuristic.LongestMostFrequent;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -267,5 +275,53 @@ public class General {
            res.add(i);
         }
         return res;
+    }
+    
+    public static List<String> read(String folderPath,String fileName) throws FileNotFoundException, IOException{
+        BufferedReader br = new BufferedReader(new FileReader(folderPath+fileName+".txt"));
+        String line;
+        List<String> in = new ArrayList<>();
+        
+        while ((line = br.readLine()) != null) {
+            in.add(line);
+        }
+        br.close();
+        return in;
+    }
+    
+    public static String getRoundedValue(double in){
+        return ""+Math.round(in*100.0)/100.0;
+    }
+    
+    public static void write(List<String> records,String outputPath,String filename) throws IOException {
+        int bufSize=(int) Math.pow(1024, 2);
+        File file;
+        if(outputPath==null){
+            file= new File("foo", ".txt");
+        }
+        else{
+            file=new File(outputPath,filename+".txt");
+        }
+        try {
+            FileWriter writer = new FileWriter(file);
+            BufferedWriter bufferedWriter = new BufferedWriter(writer, bufSize);
+
+            System.out.print("Writing buffered (buffer size: " + bufSize + ")... ");
+            write1(records, bufferedWriter);
+        } finally {
+            // comment this out if you want to inspect the files afterward
+            //file.delete();
+        }
+    }
+    
+    public static void write1(List<String> records, Writer writer) throws IOException {
+        long start = System.currentTimeMillis();
+        for (String record: records) {
+            writer.write(record+"\n");
+        }
+        writer.flush();
+        writer.close();
+        long end = System.currentTimeMillis();
+        System.out.println((end - start) / 1000f + " seconds");
     }
 }

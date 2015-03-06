@@ -49,6 +49,10 @@ public class MainRule extends Rule {
         this.elements=elem;
     }
     
+    public List<Integer> getElements(){
+        return this.elements;
+    }
+    
     public void setSlotIDs(IntArrayList slotsIDs){
         this.activeSlotIDs=slotsIDs;
     }
@@ -96,8 +100,8 @@ public class MainRule extends Rule {
         return res;
     }
     
-    public int getGenerativeCount(){
-        int res=1;
+    public Long getGenerativeCount(){
+        long res=1;
         for(SubRule r: this.relatedSubRules)
         {
             if(r.getRuleType()==RuleType.Sub)
@@ -106,4 +110,7 @@ public class MainRule extends Rule {
         return res;
     }
     
+    public boolean isActiveSlot(int id){
+        return this.activeSlotIDs.contains(id);
+    }
 }
