@@ -58,7 +58,6 @@ public class Node {
         int hash = 7;
         return hash;
     }
-     
     
     public String traverse(){
         //do nothing

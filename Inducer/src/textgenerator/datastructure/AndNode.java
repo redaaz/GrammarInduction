@@ -20,9 +20,6 @@ public class AndNode extends Node{
     public AndNode(String v){
         super(v);
         this.type=Type.AND;
-        
-        
-        
     }
     
     @Override

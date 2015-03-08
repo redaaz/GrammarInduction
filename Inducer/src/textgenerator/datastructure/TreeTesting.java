@@ -29,7 +29,7 @@ public class TreeTesting {
         AndOrTree tree=new AndOrTree(head);
         tree.buildTree(path,fileName);
         
-        List<String> gen=tree.generate(20000);
+        List<String> gen=tree.generate(50000);
         
         General.write(gen, path, "("+gen.size()+")_Generated_"+fileName);
         
