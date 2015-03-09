@@ -63,7 +63,7 @@ public class Inducer {
         
 //GI gi=new GI(new AlgoCMSPAM(),new MostCohesiveLongest(),0.005,0.2);
         //GI gi=new GI(new AlgoCMSPAM(),new MostCohesiveLongest(),0.5,0.5);
-        GI gi=new GI(new AlgoCMSPAM(),new MostCohesiveLongest(),0.01,0.2);
+        GI gi=new GI(new AlgoCMSPAM_HPPC(),new MostCohesiveLongest(),0.005,0.2);
         
         //gi.setSencondaryAnalysingParameters(0.05d,2);   
         //gi.setSencondaryAnalysingParameters(0.05d,20);   
@@ -122,7 +122,7 @@ public class Inducer {
             //(3) make rules
             //--------------
             /*PERFORMANCE TEST*/log.addTime();
-            List<Rule> newRules=Rule.makeRules(corpus, bestFI,gi.minSup2);
+            List<Rule> newRules=Rule.makeRules(corpus, bestFI,gi.algo.getClass().newInstance(),gi.minSup2);
             /*PERFORMANCE TEST*/log.addTime();
             
             //check memory

@@ -14,6 +14,7 @@ import com.carrotsearch.hppc.cursors.IntCursor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import spm.spam.SPMiningAlgorithm;
 import text.General;
 
 
@@ -72,7 +73,7 @@ public class Rule {
         System.out.println(toCodedString());
     }
     
-    public static List<Rule> makeRules(List<Sentence> input,FrequentPattern fp,double minSup){
+    public static List<Rule> makeRules(List<Sentence> input,FrequentPattern fp,SPMiningAlgorithm algo,double minSup){
         List<Rule> rules=new ArrayList<>();
         //lists of n+1 slot's alternatives (n:nb of items in the frequent pattern)
         //each slot has a list of alternatives
@@ -97,7 +98,7 @@ public class Rule {
         });
         
         double minimumSupport=referencesBesedtoSlots.size()*minSup;
-        CommonSlots cslots = General.findCommonReferencesSlots(referencesBesedtoSlots,minimumSupport);
+        CommonSlots cslots = General.findCommonReferencesSlots(referencesBesedtoSlots,algo,minimumSupport);
         
         while(cslots!=null && !cslots.slots.isEmpty()){
             List<SubRule> tempNewSubRules=new ArrayList<>();
@@ -113,7 +114,7 @@ public class Rule {
             //3-do some changes
             updateReferencesBesedtoSlotsHashMap(newMR,referencesBesedtoSlots);
             
-            cslots = General.findCommonReferencesSlots(referencesBesedtoSlots,minimumSupport);
+            cslots = General.findCommonReferencesSlots(referencesBesedtoSlots,algo,minimumSupport);
         }
 
         return rules;

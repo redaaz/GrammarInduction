@@ -533,7 +533,7 @@ public class GI {
             //(3) make rules
             //--------------
             /*PERFORMANCE TEST*/log.addTime();
-            List<Rule> newRules=Rule.makeRules(input, bestFI,min);
+            List<Rule> newRules=Rule.makeRules(input, bestFI,this.algo,min);
             /*PERFORMANCE TEST*/log.addTime();
             
             log.checkMemory();

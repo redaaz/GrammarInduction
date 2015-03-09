@@ -36,7 +36,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import spm.spam.AlgoCMSPAM;
+import spm.spam.AlgoCMSPAM_HPPC;
+import spm.spam.SPMiningAlgorithm;
 
 
 /**
@@ -131,7 +132,7 @@ public class General {
         return res;
     }
     
-    public static CommonSlots findCommonReferencesSlots(IntObjectOpenHashMap<IntArrayList> referenceToSlots,double minSup){
+    public static CommonSlots findCommonReferencesSlots(IntObjectOpenHashMap<IntArrayList> referenceToSlots,SPMiningAlgorithm algo,double minSup){
         ObjectArrayList<IntArrayList> in=new ObjectArrayList();
         IntIntOpenHashMap tempIndexsToinputIndexs=new IntIntOpenHashMap();
         //Iterator it = referenceToSlots.entrySet().iterator();
@@ -150,7 +151,7 @@ public class General {
                       
          }
         
-        AlgoCMSPAM algo=new AlgoCMSPAM();
+        
         Heuristic heu=new LongestMostFrequent();
         //CommonSlots cs=intersect(in,algo,heu,minSup,tempIndexsToinputIndexs);
         CommonSlots cs=intersect(in,tempIndexsToinputIndexs);
