@@ -60,9 +60,15 @@ public class Inducer {
         //Initials
         boolean stop=false;
         int loopCounter=0;
-        //GI gi=new GI(new AlgoCMSPAM(),new MostCohesiveLongest(),0.005,0.2);
-        GI gi=new GI(new AlgoCMSPAM(),new MostCohesiveLongest(),0.01,0.2);
+        
+//GI gi=new GI(new AlgoCMSPAM(),new MostCohesiveLongest(),0.005,0.2);
         //GI gi=new GI(new AlgoCMSPAM(),new MostCohesiveLongest(),0.5,0.5);
+        GI gi=new GI(new AlgoCMSPAM(),new MostCohesiveLongest(),0.01,0.2);
+        
+        //gi.setSencondaryAnalysingParameters(0.05d,2);   
+        //gi.setSencondaryAnalysingParameters(0.05d,20);   
+        gi.setSencondaryAnalysingParameters(0.005d,20);
+        
         gi.setTextPreprocessing(null, PreTextOperation.RemovePunctuations);
         
         MemoryLogger log=new MemoryLogger();
@@ -70,9 +76,9 @@ public class Inducer {
         //Read the input
         //String folderPath="/Users/reda/Documents/NewAlgoTests/";
         String fileName;
-        String folderPath="/Users/reda/Downloads/rt-polaritydata/rt-polaritydata/";
+        String folderPath="/Users/reda/Documents/NewAlgoTests/Amazon/Clothing&Accessories/";
         if(args.length==0){
-            fileName="neg";
+            fileName="Clothing&Accessories_(10000)_pos";
         }
         else{
             fileName=args[0];
@@ -156,9 +162,7 @@ public class Inducer {
                 toAnalyse.add((SubRule) x);
         });
         
-        //gi.setSencondaryAnalysingParameters(0.05d,2);   
-        //gi.setSencondaryAnalysingParameters(0.05d,20);   
-        gi.setSencondaryAnalysingParameters(0.05d,5);   
+           
             
         gi.startSecondaryExecution(); 
         int SubLoop=0;
