@@ -29,8 +29,8 @@ public class SentimentTesting {
     
     public static void main(String[] args) throws FileNotFoundException, IOException {
         
-        String fileName="(50000)_Generated_neg_rules";
-        String folderPath="/Users/reda/Downloads/rt-polaritydata/rt-polaritydata/50K_neg_gen/";
+        String fileName="(200000)Tweets_pos";
+        String folderPath="/Users/reda/Documents/NewAlgoTests/Twitter/";
 
         List<String> input=General.read(folderPath,fileName);
         

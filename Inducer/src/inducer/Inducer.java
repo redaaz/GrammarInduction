@@ -40,9 +40,6 @@ public class Inducer {
         /* Total memory currently in use by the JVM */
         System.out.println("Total memory (bytes): " + 
         Runtime.getRuntime().totalMemory()/(1024*1024));
-        Integer ii=555555555;
-   
-        System.out.println(Long.MAX_VALUE);
         
         /*
         IntArrayList fastset=new IntArrayList();
@@ -65,7 +62,7 @@ public class Inducer {
         boolean stop=false;
         int loopCounter=0;
         
-//GI gi=new GI(new AlgoCMSPAM(),new MostCohesiveLongest(),0.005,0.2);
+        //GI gi=new GI(new AlgoCMSPAM(),new MostCohesiveLongest(),0.005,0.2);
         //GI gi=new GI(new AlgoCMSPAM(),new MostCohesiveLongest(),0.5,0.5);
         GI gi=new GI(new AlgoCMSPAM_HPPC(),new MostCohesiveLongest(),0.005,0.2);
         
@@ -80,19 +77,16 @@ public class Inducer {
         //Read the input
         //String folderPath="/Users/reda/Documents/NewAlgoTests/";
         String fileName;
-        String folderPath="/Users/reda/Documents/NewAlgoTests/";
+        String folderPath="/Users/reda/Documents/NewAlgoTests/Amazon/Clothing&Accessories/";
         if(args.length==0){
-            fileName="50k";
+            fileName="Clothing&Accessories_(10000)_pos";
         }
         else{
             fileName=args[0];
         }
-        int uu= WordsDictionary.getNumOfUniqueWords();
+        
         List<Sentence> corpus= gi.readTheCorpus(folderPath,fileName);
-        int uu1= WordsDictionary.getNumOfUniqueWords();
-        String sss=WordsDictionary.getWord(333);
-        int uuuu=WordsDictionary.getWordIndex("your");
-        ObjectIntOpenHashMap<String> rrr= WordsDictionary.wordsToIndexDictionary.get('y');
+        
         //check memory
         log.checkMemory();
         
