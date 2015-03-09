@@ -6,6 +6,9 @@
 
 package datastructure;
 
+import com.carrotsearch.hppc.ObjectArrayList;
+import com.carrotsearch.hppc.ObjectIntOpenHashMap;
+import com.carrotsearch.hppc.ObjectObjectOpenHashMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,11 +20,11 @@ import java.util.List;
 public class  WordsDictionary {
     
     //zero-based list of unique words
-    static List<String> uniqueWordsList=new ArrayList<>();
-    
+    //static List<String> uniqueWordsList=new ArrayList<>();
+    static ObjectArrayList<String> uniqueWordsList=new ObjectArrayList();
     //first-char based dictionary of word indexs (zero-based indexs)
-    static HashMap<Character, HashMap<String, Integer> >  wordsToIndexDictionary=new HashMap<>();
-    
+    //static HashMap<Character, HashMap<String, Integer> >  wordsToIndexDictionary=new HashMap<>();
+    static ObjectObjectOpenHashMap<Character, ObjectIntOpenHashMap<String> >  wordsToIndexDictionary=new ObjectObjectOpenHashMap();
     
     // to add new word to the structure: (1) list (2) dictionary 
     // @param word should be >=1 length
@@ -32,7 +35,7 @@ public class  WordsDictionary {
         uniqueWordsList.add(word);
         
         if(wordsToIndexDictionary.get(word.charAt(0))==null)
-            wordsToIndexDictionary.put(word.charAt(0), new HashMap<>());
+            wordsToIndexDictionary.put(word.charAt(0), new ObjectIntOpenHashMap());
         
         wordsToIndexDictionary.get(word.charAt(0)).put(word, uniqueWordsList.size()-1);
         return uniqueWordsList.size()-1;
@@ -48,7 +51,7 @@ public class  WordsDictionary {
             return addNewWord(word);
         }
         else{
-            if(wordsToIndexDictionary.get(word.charAt(0)).get(word)==null){
+            if(wordsToIndexDictionary.get(word.charAt(0)).containsKey(word)){
                 return addNewWord(word);
             }
         }
@@ -64,7 +67,7 @@ public class  WordsDictionary {
             return -1;
         }
         else{
-            if(wordsToIndexDictionary.get(word.charAt(0)).get(word)==null){
+            if(wordsToIndexDictionary.get(word.charAt(0)).containsKey(word)){
                 return -1;
             }
             return wordsToIndexDictionary.get(word.charAt(0)).get(word);
@@ -86,7 +89,7 @@ public class  WordsDictionary {
             return false;
         }
         else{
-            if(wordsToIndexDictionary.get(word.charAt(0)).get(word)==null){
+            if(wordsToIndexDictionary.get(word.charAt(0)).containsKey(word)){
                 return false;
             }
             return true;
