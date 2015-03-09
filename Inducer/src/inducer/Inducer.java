@@ -7,12 +7,14 @@
 package inducer;
 
 import com.carrotsearch.hppc.ObjectArrayList;
+import com.carrotsearch.hppc.ObjectIntOpenHashMap;
 import com.carrotsearch.sizeof.RamUsageEstimator;
 import datastructure.FrequentPattern;
 import datastructure.Rule;
 import datastructure.RuleType;
 import datastructure.Sentence;
 import datastructure.SubRule;
+import datastructure.WordsDictionary;
 import heuristic.MostCohesiveLongest;
 import java.io.File;
 import java.io.IOException;
@@ -20,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import spm.spam.AlgoCMSPAM;
+import spm.spam.AlgoCMSPAM_HPPC;
 import spm.tools.MemoryLogger;
 import text.PreTextOperation;
 
@@ -33,12 +36,13 @@ public class Inducer {
      * @param args the command line arguments
      * @throws java.io.IOException
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InstantiationException, IllegalAccessException {
         /* Total memory currently in use by the JVM */
         System.out.println("Total memory (bytes): " + 
         Runtime.getRuntime().totalMemory()/(1024*1024));
-        
-        
+        Integer ii=555555555;
+   
+        System.out.println(Long.MAX_VALUE);
         
         /*
         IntArrayList fastset=new IntArrayList();
@@ -76,16 +80,19 @@ public class Inducer {
         //Read the input
         //String folderPath="/Users/reda/Documents/NewAlgoTests/";
         String fileName;
-        String folderPath="/Users/reda/Documents/NewAlgoTests/Amazon/Clothing&Accessories/";
+        String folderPath="/Users/reda/Documents/NewAlgoTests/";
         if(args.length==0){
-            fileName="Clothing&Accessories_(10000)_pos";
+            fileName="50k";
         }
         else{
             fileName=args[0];
         }
-        
+        int uu= WordsDictionary.getNumOfUniqueWords();
         List<Sentence> corpus= gi.readTheCorpus(folderPath,fileName);
-        
+        int uu1= WordsDictionary.getNumOfUniqueWords();
+        String sss=WordsDictionary.getWord(333);
+        int uuuu=WordsDictionary.getWordIndex("your");
+        ObjectIntOpenHashMap<String> rrr= WordsDictionary.wordsToIndexDictionary.get('y');
         //check memory
         log.checkMemory();
         
