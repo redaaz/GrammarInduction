@@ -65,21 +65,26 @@ public class SubRule extends Rule {
         return str.substring(0, str.length()-3);
     }    
     
-    public int getUniqueAlternatives(){
+    public long getUniqueAlternatives(){
         if(this.alternatives.isEmpty())
             return 0;
         int uniqueCount=0;
-        int SecMainRules=1;
+        long SecMainRules=1;
         ObjectOpenHashSet<Alternative> set=new ObjectOpenHashSet();
-        for(Alternative al:this.alternatives)
-        {
-            if(al.referenceIndex!=-1){
-                set.add(al);
+        try{
+            for(Alternative al:this.alternatives)
+            {
+                if(al.referenceIndex!=-1){
+                    set.add(al);
+                }
+                else{
+                    SecMainRules=java.lang.Math.multiplyExact(SecMainRules,  al.getRelatedSecondaryMainRule().getGenerativeCount());
+                }
             }
-            else{
-                SecMainRules*=al.getRelatedSecondaryMainRule().getGenerativeCount();
-            }
+        }catch(ArithmeticException ae){
+            return Long.MAX_VALUE;
         }
+        
         uniqueCount=set.size();
         SecMainRules=SecMainRules==1?0:SecMainRules;
         return uniqueCount+SecMainRules;

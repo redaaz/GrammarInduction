@@ -102,10 +102,16 @@ public class MainRule extends Rule {
     
     public Long getGenerativeCount(){
         long res=1;
-        for(SubRule r: this.relatedSubRules)
-        {
-            if(r.getRuleType()==RuleType.Sub)
-                res*=r.getUniqueAlternatives();
+        try{
+            for(SubRule r: this.relatedSubRules)
+            {
+                if(r.getRuleType()==RuleType.Sub){
+                    //res*=r.getUniqueAlternatives();
+                    res=java.lang.Math.multiplyExact(res, r.getUniqueAlternatives());
+                }
+            }
+        }catch (ArithmeticException ae){
+            return Long.MAX_VALUE;
         }
         return res;
     }

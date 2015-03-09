@@ -306,6 +306,7 @@ public class GI {
         rep.add("Heuristic: "+this.heuristic.getHeuristicName());
         rep.add("Primary Minimum Support: "+this.minSup1);
         rep.add("Secondary Minimum Support: "+this.minSup2);
+        rep.add("SubRules Minimum Support: "+this.minSup3 +" ("+this.minimumNumofSentence+") -whichever is less");
         rep.add("# of Basic Loops: "+this.getBasicLoopsCount());
         rep.add("# of Seco. Loops: "+this.getSecondaryLoopsCount());
         rep.add("");
@@ -331,9 +332,10 @@ public class GI {
         rep.add("# of Unique Input Words: "+WordsDictionary.getNumOfUniqueWords());
         rep.add("Non Productive Sen.: "+this.getNonProductiveInput());
         rep.add("Productive Sen.: "+(this.inputSize- this.getNonProductiveInput()));
-        rep.add("Generating Power (sen.): "+this.getGenerativeCount());
+        Long gc=this.getGenerativeCount();
+        rep.add("Generating Power (sen.): "+(gc==Long.MAX_VALUE? "more than "+gc: gc));
         Double ratio=((double)100* this.getGenerativeCount())  /(this.inputSize- this.getNonProductiveInput()) ;
-        rep.add("Generating Ratio : "+General.getRoundedValue(ratio)  +"%");
+        rep.add("Generating Ratio : "+ General.getRoundedValue(ratio)  +"%");
         rep.add("");
         rep.add("TEXT PREPROCESSING INFO");
         rep.add("-----------------------");
@@ -596,13 +598,16 @@ public class GI {
     public Long getGenerativeCount(){
         Long res=(long) 0;
         
-        for(Rule r: this.InducedRules){
-            
-            if(r.getRuleType()==RuleType.Main){
-                res+=((MainRule)r).getGenerativeCount();
+        try{
+            for(Rule r: this.InducedRules){
+
+                if(r.getRuleType()==RuleType.Main){
+                    res=java.lang.Math.addExact(res,((MainRule)r).getGenerativeCount());
+                }
             }
+        } catch(ArithmeticException ae){
+            return Long.MAX_VALUE;
         }
-        
         return res;
     }
     
