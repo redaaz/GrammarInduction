@@ -9,11 +9,14 @@ package text;
 import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntIntOpenHashMap;
 import com.carrotsearch.hppc.IntObjectOpenHashMap;
+import com.carrotsearch.hppc.IntOpenHashSet;
+import com.carrotsearch.hppc.LongArrayList;
 import com.carrotsearch.hppc.ObjectArrayList;
 import com.carrotsearch.hppc.ObjectIntOpenHashMap;
 import com.carrotsearch.hppc.ObjectObjectOpenHashMap;
 import com.carrotsearch.hppc.cursors.IntCursor;
 import com.carrotsearch.hppc.cursors.IntObjectCursor;
+import com.carrotsearch.hppc.cursors.LongCursor;
 import com.carrotsearch.hppc.cursors.ObjectCursor;
 import datastructure.CommonSlots;
 import heuristic.Heuristic;
@@ -27,16 +30,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-import spm.spam.AlgoCMSPAM_HPPC;
+import spm.pattern.Itemset;
+import spm.spam.Prefix;
 import spm.spam.SPMiningAlgorithm;
 
 
@@ -315,6 +314,27 @@ public class General {
         }
     }
     
+    public static void append(List<String> records,String outputPath,String filename) throws IOException {
+        int bufSize=(int) Math.pow(1024, 2);
+        File file;
+        if(outputPath==null){
+            file= new File("foo", ".txt");
+        }
+        else{
+            file=new File(outputPath,filename+".txt");
+        }
+        try {
+            FileWriter writer = new FileWriter(file,true);
+            BufferedWriter bufferedWriter = new BufferedWriter(writer, bufSize);
+
+            System.out.print("Writing buffered (buffer size: " + bufSize + ")... ");
+            write1(records, bufferedWriter);
+        } finally {
+            // comment this out if you want to inspect the files afterward
+            //file.delete();
+        }
+    }
+    
     public static void write1(List<String> records, Writer writer) throws IOException {
         long start = System.currentTimeMillis();
         for (String record: records) {
@@ -324,5 +344,49 @@ public class General {
         writer.close();
         long end = System.currentTimeMillis();
         System.out.println((end - start) / 1000f + " seconds");
+    }
+    
+    public static int getWordsCount(String str){
+        if(str==null || str.isEmpty())
+            return 0;
+        String[] ll=str.split(" ");
+        return ll.length;
+    }
+    
+    public static IntOpenHashSet plusToAll(IntOpenHashSet in,int value){
+        IntOpenHashSet out=new IntOpenHashSet();
+        for(IntCursor c:in){
+            out.add(c.value + value);
+        }
+        return out;
+    }
+    
+    public static List<Long> getRatios(LongArrayList in,long count){
+        List<Long> res=new ArrayList<>();
+        long sum=0;
+        for(LongCursor i:in)
+            sum += i.value;
+        double factor= count /(double) sum;
+        for(LongCursor i:in){
+            res.add(Math.round(factor * i.value));    
+        }
+        return res;
+    }
+    
+    public static String prefex2str(Prefix prefix,int sup){
+        StringBuilder r = new StringBuilder("");
+        for (Itemset itemset : prefix.getItemsets()) {
+//			r.append('(');
+            for (Integer item : itemset.getItems()) {
+                String string = item.toString();
+                r.append(string);
+                r.append(' ');
+            }
+            r.append("-1 ");
+        }
+
+        r.append("SUP: ");
+        r.append(sup);
+        return r.toString();
     }
 }
