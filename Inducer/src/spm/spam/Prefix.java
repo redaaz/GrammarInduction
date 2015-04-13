@@ -53,7 +53,7 @@ import spm.pattern.Itemset;
 *  @see AlgoVMSP
 *  
  */
-class Prefix{
+public class Prefix{
 	
 	final List<Itemset> itemsets = new ArrayList<Itemset>();
 	
