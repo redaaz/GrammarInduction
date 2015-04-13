@@ -5,20 +5,26 @@
  */
 
 package textgenerator.datastructure;
+import com.carrotsearch.hppc.IntArrayList;
 import com.carrotsearch.hppc.IntObjectOpenHashMap;
+import com.carrotsearch.hppc.LongArrayList;
+import com.carrotsearch.hppc.ObjectArrayList;
 import com.carrotsearch.hppc.ObjectObjectOpenHashMap;
 import com.carrotsearch.hppc.ObjectOpenHashSet;
+import com.carrotsearch.hppc.cursors.IntCursor;
+import com.carrotsearch.hppc.cursors.LongCursor;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import text.General;
 
 public class AndOrTree {
  
     IntObjectOpenHashMap<Node> nodes;
     Node head;
-    
+    public static boolean VeryBig=false;
     public AndOrTree(Node h){
         this.head=h;
         this.nodes=new IntObjectOpenHashMap();
@@ -52,23 +58,32 @@ public class AndOrTree {
     
     public void buildTree(String path,String filename) throws IOException{
         ObjectObjectOpenHashMap<String, String> leftSideToRightSide = readFromFile(path,filename);
-        this.head.build(head.getValue(),leftSideToRightSide, this.nodes);    
-        
-        
+        this.head.build(head.getValue(),leftSideToRightSide, this.nodes);
+        this.head.setRange();
     }
     
+    static public IntArrayList path;
+    public ObjectArrayList<IntArrayList> pathes;
     public List<String> generate(int count){
         List<String> res=new ArrayList<>();
         ObjectObjectOpenHashMap<Character,ObjectObjectOpenHashMap<Character,ObjectOpenHashSet<String>>> dic=new ObjectObjectOpenHashMap();
+        int ExsitCounter=0;
+        pathes = new ObjectArrayList();
         
         for(int i=0;i<count;i++){
+            path=new IntArrayList();
             String str=this.traverse();
+            pathes.add(path.clone());
             if(!isExist(str,dic)){
                 res.add(str);
-                //System.out.println(i + " of "+count);
+                if(i % 1000000 == 0)
+                    System.out.println(" --> "+i);
             }
             else{
                 i--;
+                ExsitCounter++;
+                if(ExsitCounter % 1000000 == 0)
+                    System.out.println("ExsitCounter = "+ExsitCounter);
             }
         }
         
@@ -79,7 +94,7 @@ public class AndOrTree {
         if(str==null || str.isEmpty() || dic==null || str.length()<2)
             return false;
         Character st=str.charAt(0);
-        Character nd=str.charAt(str.length()-1);
+        Character nd=str.charAt(str.length()-1)==' '?  str.charAt(str.length()-2):str.charAt(str.length()-1);
         
         if(!dic.containsKey(st)){//st doesnt exist
             dic.put(st, new ObjectObjectOpenHashMap());
@@ -102,5 +117,27 @@ public class AndOrTree {
                 }
             }   
         }
+    }
+    
+    public ObjectArrayList<IntArrayList> generatePathes(long count){
+        
+        ObjectArrayList<IntArrayList> paths=new ObjectArrayList();
+        for(int i=0;i<count;i++)
+            paths.add(new IntArrayList());
+        
+        this.head.getGeneratingDistribution(paths, count);
+        
+        return paths;
+    }
+   
+    
+    public String traverse(IntArrayList choices){
+        String in="";
+        if(head.terminal==true)
+            in+= head.value+" ";
+        else
+            in+=head.traverse( choices);
+        return in;
+        
     }
 }
