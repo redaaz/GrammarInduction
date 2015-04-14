@@ -132,43 +132,44 @@ public class AlgoCMSPAM extends SPMiningAlgorithm{
         //Runtime.getRuntime().gc();
         // close the file
         /////////writer.close();
-        List<FrequentPattern> res=new ArrayList<>();
-        
-        /*PERFORMANCE TEST*/long third00=System.currentTimeMillis();
-        for(String str:strRes){
-            /*PERFORMANCE TEST*/long third1=System.currentTimeMillis();
-            FrequentPattern x=new FrequentPattern(str);
-            /*PERFORMANCE TEST*/long third2=System.currentTimeMillis();
-            /*PERFORMANCE TEST*/acc1+=third2-third1;
-            List<List<Repetition>> ref=new ArrayList<>();
-            /*PERFORMANCE TEST*/long third3=System.currentTimeMillis();
-            x.getPattern().stream().forEach((i) -> {
-                ref.add(this.verticalDB.get(i).inputReferences);
-            });
-            /*PERFORMANCE TEST*/long third4=System.currentTimeMillis();
-            /*PERFORMANCE TEST*/acc2+=third4-third3;
-            x.setInputReferences(ref,input);
-            /*PERFORMANCE TEST*/long third5=System.currentTimeMillis();
-            /*PERFORMANCE TEST*/acc3+=third5-third4;
-            x.setCohesion(verticalDB);
-            /*PERFORMANCE TEST*/long third6=System.currentTimeMillis();
-            /*PERFORMANCE TEST*/acc4+=third6-third5;
-            res.add(x);
-        }
-        //Runtime.getRuntime().gc();
-        /*PERFORMANCE TEST*/long third000=System.currentTimeMillis();
-        /*PERFORMANCE TEST*/long forth=System.currentTimeMillis();
-        //*PERFORMANCE TEST*/System.out.println("algo: "+(third00-third0));
-        //*PERFORMANCE TEST*/System.out.println("acc1: "+acc1);
-        //*PERFORMANCE TEST*/System.out.println("acc2: "+acc2);
-        //*PERFORMANCE TEST*/System.out.println("acc3: "+acc3);
-        //*PERFORMANCE TEST*/System.out.println("acc4: "+acc4);
-        
-        ///*PERFORMANCE TEST*/System.out.println("acc6: "+(third000-third00));
-        
+        //List<FrequentPattern> res=new ArrayList<>();
+        List<FrequentPattern> res=stringArrayToFrequentPatternList_CMSPAM(strRes,input);
+//        
+//        /*PERFORMANCE TEST*/long third00=System.currentTimeMillis();
+//        for(String str:strRes){
+//            /*PERFORMANCE TEST*/long third1=System.currentTimeMillis();
+//            FrequentPattern x=new FrequentPattern(str);
+//            /*PERFORMANCE TEST*/long third2=System.currentTimeMillis();
+//            /*PERFORMANCE TEST*/acc1+=third2-third1;
+//            List<List<Repetition>> ref=new ArrayList<>();
+//            /*PERFORMANCE TEST*/long third3=System.currentTimeMillis();
+//            x.getPattern().stream().forEach((i) -> {
+//                ref.add(this.verticalDB.get(i).inputReferences);
+//            });
+//            /*PERFORMANCE TEST*/long third4=System.currentTimeMillis();
+//            /*PERFORMANCE TEST*/acc2+=third4-third3;
+//            x.setInputReferences(ref,input);
+//            /*PERFORMANCE TEST*/long third5=System.currentTimeMillis();
+//            /*PERFORMANCE TEST*/acc3+=third5-third4;
+//            x.setCohesion(verticalDB);
+//            /*PERFORMANCE TEST*/long third6=System.currentTimeMillis();
+//            /*PERFORMANCE TEST*/acc4+=third6-third5;
+//            res.add(x);
+//        }
+//        //Runtime.getRuntime().gc();
+//        /*PERFORMANCE TEST*/long third000=System.currentTimeMillis();
+//        /*PERFORMANCE TEST*/long forth=System.currentTimeMillis();
+//        //*PERFORMANCE TEST*/System.out.println("algo: "+(third00-third0));
+//        //*PERFORMANCE TEST*/System.out.println("acc1: "+acc1);
+//        //*PERFORMANCE TEST*/System.out.println("acc2: "+acc2);
+//        //*PERFORMANCE TEST*/System.out.println("acc3: "+acc3);
+//        //*PERFORMANCE TEST*/System.out.println("acc4: "+acc4);
+//        
+//        ///*PERFORMANCE TEST*/System.out.println("acc6: "+(third000-third00));
+//        
         return res;
     }
-
+/*
     @Override
     public List<FrequentPattern> runAlgorithm2(List<String> input, double minsupRel) {
         Bitmap.INTERSECTION_COUNT = 0;
@@ -206,7 +207,7 @@ public class AlgoCMSPAM extends SPMiningAlgorithm{
         
         return res;
     }
-
+*/
     /**
      * This is the main method for the SPAM algorithm
      *
@@ -690,7 +691,7 @@ public class AlgoCMSPAM extends SPMiningAlgorithm{
             dfsPruning(prefix, entry.getValue(), frequentItems, frequentItems, entry.getKey(), 2, entry.getKey(),results);
         }
     }
-    
+    /*
     private void spam2(List<String> input, double minsupRel,List<String> results)  {
         // the structure to store the vertical database
         // key: an item    value : bitmap
@@ -926,7 +927,7 @@ public class AlgoCMSPAM extends SPMiningAlgorithm{
             dfsPruning(prefix, entry.getValue(), frequentItems, frequentItems, entry.getKey(), 2, entry.getKey(),results);
         }
     }
-    
+    */
     /**
      * This is the dfsPruning method as described in the SPAM paper.
      *
