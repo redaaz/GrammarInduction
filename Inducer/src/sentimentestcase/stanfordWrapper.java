@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package sentimentusecase;
+package sentimentestcase;
 
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.neural.rnn.RNNCoreAnnotations;

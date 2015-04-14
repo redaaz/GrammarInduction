@@ -5,7 +5,7 @@
  */
 
 
-package sentimentusecase;
+package sentimentestcase;
 
 
 import edu.stanford.nlp.io.*;
@@ -29,8 +29,8 @@ public class SentimentTesting {
     
     public static void main(String[] args) throws FileNotFoundException, IOException {
         
-        String fileName="(200000)Tweets_pos";
-        String folderPath="/Users/reda/Documents/NewAlgoTests/Twitter/";
+        String fileName="50K_pos_markov_50000";
+        String folderPath="/Users/reda/Downloads/markov-text-master/";
 
         List<String> input=General.read(folderPath,fileName);
         

@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package sentimentusecase;
+package sentimentestcase;
 
 import com.carrotsearch.hppc.ObjectArrayList;
 import com.carrotsearch.hppc.cursors.ObjectCursor;
