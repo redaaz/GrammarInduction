@@ -15,6 +15,7 @@ import heuristic.MostCohesiveLongest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import spm.clasp.AlgoCM_ClaSP;
 import spm.spade.AlgoCMSPADE;
 import spm.spam.AlgoCMSPAM;
 import spm.spam.AlgoTKS;
@@ -59,7 +60,7 @@ public class Inducer {
         //AlgoTKS
         //GI gi=new GI(new AlgoCMSPAM(),new MostCohesiveLongest(),0.005,0.2);
         //GI gi=new GI(new AlgoCMSPAM(),new MostCohesiveLongest(),0.5,0.5);
-        GI gi=new GI(new AlgoCMSPADE(),new MostCohesiveLongest(),0.005,0.2);
+        GI gi=new GI(new AlgoCM_ClaSP(),new MostCohesiveLongest(),0.005,0.2);
         //0.1 0.03 0.01 0.003 0.001
         //gi.setSencondaryAnalysingParameters(0.05d,2);   
         //gi.setSencondaryAnalysingParameters(0.05d,20);   
@@ -74,7 +75,7 @@ public class Inducer {
         String fileName;
         String folderPath="/Users/reda/Documents/NewAlgoTests/";
         if(args.length==0){
-            fileName="200K";
+            fileName="10";
         }
         else{
             fileName=args[0];
