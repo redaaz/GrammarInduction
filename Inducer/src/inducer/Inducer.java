@@ -6,23 +6,18 @@
 
 package inducer;
 
-import com.carrotsearch.hppc.ObjectArrayList;
-import com.carrotsearch.hppc.ObjectIntOpenHashMap;
-import com.carrotsearch.sizeof.RamUsageEstimator;
 import datastructure.FrequentPattern;
 import datastructure.Rule;
 import datastructure.RuleType;
 import datastructure.Sentence;
 import datastructure.SubRule;
-import datastructure.WordsDictionary;
 import heuristic.MostCohesiveLongest;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import spm.spade.AlgoCMSPADE;
 import spm.spam.AlgoCMSPAM;
-import spm.spam.AlgoCMSPAM_HPPC;
+import spm.spam.AlgoTKS;
 import spm.tools.MemoryLogger;
 import text.PreTextOperation;
 
@@ -61,11 +56,11 @@ public class Inducer {
         //Initials
         boolean stop=false;
         int loopCounter=0;
-        
+        //AlgoTKS
         //GI gi=new GI(new AlgoCMSPAM(),new MostCohesiveLongest(),0.005,0.2);
         //GI gi=new GI(new AlgoCMSPAM(),new MostCohesiveLongest(),0.5,0.5);
-        GI gi=new GI(new AlgoCMSPAM_HPPC(),new MostCohesiveLongest(),0.005,0.2);
-        
+        GI gi=new GI(new AlgoCMSPADE(),new MostCohesiveLongest(),0.005,0.2);
+        //0.1 0.03 0.01 0.003 0.001
         //gi.setSencondaryAnalysingParameters(0.05d,2);   
         //gi.setSencondaryAnalysingParameters(0.05d,20);   
         gi.setSencondaryAnalysingParameters(0.005d,20);
@@ -77,9 +72,9 @@ public class Inducer {
         //Read the input
         //String folderPath="/Users/reda/Documents/NewAlgoTests/";
         String fileName;
-        String folderPath="/Users/reda/Documents/NewAlgoTests/Amazon/Clothing&Accessories/";
+        String folderPath="/Users/reda/Documents/NewAlgoTests/";
         if(args.length==0){
-            fileName="Clothing&Accessories_(10000)_pos";
+            fileName="200K";
         }
         else{
             fileName=args[0];

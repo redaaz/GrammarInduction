@@ -112,4 +112,19 @@ public class Sentence {
     public int getOriginalReference(){
         return this.originalReference;
     }
+    
+    public String[] getSentenceCodeForCMSPADE(){
+        if(this.sentenceCode==null || this.sentenceCode.isEmpty())
+            return null;
+        String[] res=new String[this.sentenceCode.size()*2+1];
+        int counter=0;
+        for(Integer in:this.sentenceCode){
+            res[counter]=""+in;
+            counter++;
+            res[counter]="-1";
+            counter++;
+        }
+        res[this.sentenceCode.size()*2]="-2";
+        return res;
+    }
 }

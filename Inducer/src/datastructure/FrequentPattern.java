@@ -138,12 +138,6 @@ public class FrequentPattern {
             this.cohesion=0;//to be discussed
             return;
         }
-//        Set<Integer> set=new HashSet();
-//        long t1=System.currentTimeMillis();
-//        for(Integer pp:this.patterns){
-//            set.addAll(((Bitmap)vdb.get(pp)).inputReferences.stream().map(X -> X.inputSentenceID).collect(Collectors.toList()));
-//        }
-//         long t2=System.currentTimeMillis();
         
         IntOpenHashSet set=new IntOpenHashSet();
         for(Integer pp:this.patterns){
@@ -152,12 +146,29 @@ public class FrequentPattern {
                 set.add(rp.inputSentenceID);
             }
         }
-//        long t3=System.currentTimeMillis();
-//         
-//        System.out.println("fast: "+(t2-t1));
-//        System.out.println("set: "+(t3-t2));
-//        System.out.println("fast: "+RamUsageEstimator.sizeOf(set));
-//        System.out.println("old: "+RamUsageEstimator.sizeOf(setold));
+        if(set.isEmpty())
+            this.cohesion=-1;
+        
+        this.cohesion=this.sup/(double)set.size();
+        
+    }
+    
+    //repList List<Repetition> for each item in the pattern
+    public void setCohesion(List<List<Repetition>> repList){
+        /*PERFORMANCE TEST*/long acc1=0,acc2=0,acc3=0,acc4=0;
+        
+        if (this.patterns.size()<=1){
+            this.cohesion=0;//to be discussed
+            return;
+        }
+        
+        IntOpenHashSet set=new IntOpenHashSet();
+        for(List<Repetition> pp:repList){
+            //((Bitmap)vdb.get(pp)).inputReferences.stream().map(X -> X.inputSentenceID).collect(Collectors.toList());
+            for(Repetition rp:pp){
+                set.add(rp.inputSentenceID);
+            }
+        }
         if(set.isEmpty())
             this.cohesion=-1;
         
@@ -244,6 +255,7 @@ public class FrequentPattern {
         /*PERFORMANCE TEST*/acc3+=tt4-tt3;
         for(IntCursor i: res1){
             //if (General.ContainsSequence(this.patterns,General.toIntegerList(in.get(i).toStringCM_SPAM())))
+            
             if (General.ContainsSequence(this.patterns,in.get(i.value).sentenceCode))
                res.add(i.value);       
         }
