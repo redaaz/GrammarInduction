@@ -106,11 +106,12 @@ public class SequenceDatabase {
     }
     
     public void loadData(List<Sentence> input, double minSupport) {
-        
+        long t0=0,t1=0,t2=0,t3=0;
+        t0=System.currentTimeMillis();
         for(Sentence sen:input){
             addSequence(sen.getSentenceCodeForCMSPADE());
         }
-        
+        t1=System.currentTimeMillis();
         double support = (int) Math.ceil(minSupport * sequences.size());
             Set<Item> frequentItemsSet = frequentItems.keySet();
             Set<Item> itemsToRemove = new HashSet<Item>();
@@ -124,11 +125,18 @@ public class SequenceDatabase {
                     equivalenceClass.getIdList().setAppearingSequences(equivalenceClass.getClassIdentifier());
                 }
             }
+            t2=System.currentTimeMillis();
             for (Item itemToRemove : itemsToRemove) {
                 frequentItems.remove(itemToRemove);
             }
             //And from the original database
             reduceDatabase(frequentItems.keySet());
+            t3=System.currentTimeMillis();
+            
+            System.out.println("(2.1) "+(t1-t0));
+            System.out.println("(2.2) "+(t2-t1));
+            System.out.println("(2.3) "+(t3-t2));
+            
     }
     /**
      * Method that adds a sequence from a array of string
@@ -136,6 +144,8 @@ public class SequenceDatabase {
      * @param integers
      */
     public void addSequence(String[] integers) {
+        
+        
         ItemAbstractionPairCreator pairCreator = ItemAbstractionPairCreator.getInstance();
         long timestamp = -1;
         Sequence sequence = new Sequence(sequences.size());
@@ -146,6 +156,7 @@ public class SequenceDatabase {
         //
         int pos=0;
         //
+        
         for (int i = beginning; i < integers.length; i++) {
             if (integers[i].codePointAt(0) == '<') {  // Timestamp
                 String value = integers[i].substring(1, integers[i].length() - 1);

@@ -119,24 +119,28 @@ public class AlgoCMSPADE extends SPMiningAlgorithm{
         IdListCreator idListCreator = IdListCreator_FatBitmap.getInstance();
                 
         CandidateGenerator candidateGenerator = CandidateGenerator_Qualitative.getInstance();
-        
+        long t1=0,t2=0,t3=0,t4=0,t5=0;
+        t1=System.currentTimeMillis();
         SequenceDatabase sequenceDatabase = new SequenceDatabase(abstractionCreator1, idListCreator);
-        
+        t2=System.currentTimeMillis();
         //my clear
         sequenceDatabase.clear2();        
         
         this.abstractionCreator=abstractionCreator1;
         
         sequenceDatabase.loadData(input, minsupRel);
-        
+        t3=System.currentTimeMillis();
         runAlgorithm2(sequenceDatabase, candidateGenerator,keepPatterns,verbose);
-
+        t4=System.currentTimeMillis();
         List<Pattern> lp=((SaverIntoMemory)saver).getSequences().getOnePatternsList();
         
-        
-        
         List<FrequentPattern> frequentPatterns = patternArrayToFrequentPatternList_CMSPADE(sequenceDatabase,lp, input);
+        t5=System.currentTimeMillis();
         
+        System.out.println("(1) "+(t2-t1));
+        System.out.println("(2) "+(t3-t2));
+        System.out.println("(3) "+(t4-t3));
+        System.out.println("(4) "+(t5-t4));
         
         return frequentPatterns;
     }
