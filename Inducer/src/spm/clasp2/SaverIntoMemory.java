@@ -1,7 +1,4 @@
-package spm.clasp;
-
-import java.util.List;
-
+package spm.clasp2;
 
 /**
  * This is an implementation of a class implementing the Saver interface. By 
@@ -33,17 +30,21 @@ import java.util.List;
 public class SaverIntoMemory implements Saver{
     
     private Sequences patterns=null;
+    private boolean outputSequenceIdentifiers;
     
-    public Sequences getSequences(){
-        return patterns;
+    public SaverIntoMemory(boolean outputSequenceIdentifiers){
+        patterns = new Sequences("FREQUENT SEQUENTIAL PATTERNS");
+        this.outputSequenceIdentifiers = outputSequenceIdentifiers;
     }
     
     public SaverIntoMemory(){
         patterns = new Sequences("FREQUENT SEQUENTIAL PATTERNS");
+        this.outputSequenceIdentifiers = true;
     }
     
-    public SaverIntoMemory(String name){
+    public SaverIntoMemory(String name, boolean outputSequenceIdentifiers){
         patterns = new Sequences(name);
+        this.outputSequenceIdentifiers = outputSequenceIdentifiers;
     }
     
     @Override
@@ -64,7 +65,10 @@ public class SaverIntoMemory implements Saver{
     
     @Override
     public String print() {
-        return patterns.toStringToFile();
+        return patterns.toStringToFile(outputSequenceIdentifiers);
     }
     
+    public Sequences getSequences(){
+        return patterns;
+    }
 }

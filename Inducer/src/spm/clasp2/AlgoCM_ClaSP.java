@@ -1,4 +1,4 @@
-package spm.clasp;
+package spm.clasp2;
 
 import datastructure.FrequentPattern;
 import datastructure.Repetition;
@@ -13,14 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import javax.swing.JFrame;
-import javax.swing.JScrollPane;
-import javax.swing.JTree;
-import javax.swing.WindowConstants;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
 import spm.spam.SPMiningAlgorithm;
 import spm.tools.MemoryLogger;
+
 
 
 /**
@@ -114,11 +109,11 @@ public class AlgoCM_ClaSP extends SPMiningAlgorithm{
         this.findClosedPatterns = findClosedPatterns;
         this.executePruningMethods = executePruningMethods;
     }
-    
+
     public AlgoCM_ClaSP(){
         
     }
-
+    
     /**
      * Actual call to ClaSP algorithm. The output can be either kept or ignore.
      * Whenever we choose to keep the patterns found, we can keep them in a file
@@ -132,16 +127,17 @@ public class AlgoCM_ClaSP extends SPMiningAlgorithm{
      * frequent patterns. If this value is null, we keep the patterns in the
      * main memory. This argument is taken into account just when keepPatterns
      * is activated.
+     * @param outputSequenceIdentifiers indicates if sequence ids should be output with each pattern found.
      * @throws IOException
      */
-    public void runAlgorithm(SequenceDatabase database, boolean keepPatterns, boolean verbose, String outputFilePath) throws IOException {
+    public void runAlgorithm(SequenceDatabase database, boolean keepPatterns, boolean verbose, String outputFilePath, boolean outputSequenceIdentifiers) throws IOException {
         //If we do no have any file path
         if (outputFilePath == null) {
             //The user wants to save the results in memory
-            saver = new SaverIntoMemory();
+            saver = new SaverIntoMemory(outputSequenceIdentifiers);
         } else {
             //Otherwise, the user wants to save them in the given file
-            saver = new SaverIntoFile(outputFilePath);
+            saver = new SaverIntoFile(outputFilePath, outputSequenceIdentifiers);
         }
         // reset the stats about memory usage
         MemoryLogger.getInstance().reset();
@@ -155,22 +151,6 @@ public class AlgoCM_ClaSP extends SPMiningAlgorithm{
         saver.finish();
     }
 
-    public void runAlgorithm2(SequenceDatabase database, boolean keepPatterns, boolean verbose) {
-       
-        saver = new SaverIntoMemory();
-        
-        // reset the stats about memory usage
-        MemoryLogger.getInstance().reset();
-        //keeping the starting time
-        overallStart = System.currentTimeMillis();
-        //Starting ClaSP algorithm
-        claSP2(database, (long) minSupAbsolute, keepPatterns, verbose, findClosedPatterns, executePruningMethods);
-        //keeping the ending time
-        overallEnd = System.currentTimeMillis();
-        //Search for frequent patterns: Finished
-        saver.finish();
-    }
-    
     @Override
     public List<FrequentPattern> runAlgorithm(List<Sentence> input, double minsupRel){
         this.minSupAbsolute = minsupRel;
@@ -201,192 +181,20 @@ public class AlgoCM_ClaSP extends SPMiningAlgorithm{
         return frequentPatterns;
     }
     
-    /**
-     * The actual method for extracting frequent sequences.
-     *
-     * @param database The original database
-     * @param minSupAbsolute the absolute minimum support
-     * @param keepPatterns flag indicating if we are interested in keeping the
-     * output of the algorithm
-     * @param verbose Flag for debugging purposes
-     * @param
-     * @throws IOException
-     */
-    protected void claSP(SequenceDatabase database, long minSupAbsolute, boolean keepPatterns, boolean verbose, boolean findClosedPatterns, boolean executePruningMethods) throws IOException {
-        //We get the initial trie whose children are the frequent 1-patterns
-        FrequentAtomsTrie = database.frequentItems();
-
-        //  NEW-CODE-PFV 2013
-        // Map: key: item   value:  another item that followed the first item + support
-        // (could be replaced with a triangular matrix...)
-        Map<Integer, Map<Integer, Integer>> coocMapAfter = new HashMap<Integer, Map<Integer, Integer>>(1000);
-        Map<Integer, Map<Integer, Integer>> coocMapEquals = new HashMap<Integer, Map<Integer, Integer>>(1000);
-
-        // update COOC map
-        for (Sequence seq : database.getSequences()) {
-            HashSet<Integer> alreadySeenA = new HashSet<Integer>();
-            Map<Integer, Set<Integer>> alreadySeenB_equals = new HashMap<>();
-
-            // for each item
-            for (int i = 0; i < seq.getItemsets().size(); i++) {
-                Itemset itemsetA = seq.get(i);
-                for (int j = 0; j < itemsetA.size(); j++) {
-                    Integer itemA = (Integer) itemsetA.get(j).getId();
-
-                    boolean alreadyDoneForItemA = false;
-                    Set equalSet = alreadySeenB_equals.get(itemA);
-                    if (equalSet == null) {
-                        equalSet = new HashSet();
-                        alreadySeenB_equals.put(itemA, equalSet);
-                    }
-
-                    if (alreadySeenA.contains(itemA)) {
-                        alreadyDoneForItemA = true;
-                    }
-
-                    // create the map if not existing already
-                    Map<Integer, Integer> mapCoocItemEquals = coocMapEquals.get(itemA);
-                    // create the map if not existing already
-                    Map<Integer, Integer> mapCoocItemAfter = null;
-                    if (!alreadyDoneForItemA) {
-                        mapCoocItemAfter = coocMapAfter.get(itemA);
-                    }
-
-                    //For each item after itemA in the same itemset
-                    for (int k = j + 1; k < itemsetA.size(); k++) {
-                        Integer itemB = (Integer) itemsetA.get(k).getId();
-                        if (!equalSet.contains(itemB)) {
-                            if (mapCoocItemEquals == null) {
-                                mapCoocItemEquals = new HashMap<Integer, Integer>();
-                                coocMapEquals.put(itemA, mapCoocItemEquals);
-                            }
-                            Integer frequency = mapCoocItemEquals.get(itemB);
-
-                            if (frequency == null) {
-                                mapCoocItemEquals.put(itemB, 1);
-                            } else {
-                                mapCoocItemEquals.put(itemB, frequency + 1);
-                            }
-                            
-                            equalSet.add(itemB);
-                        }
-                    }
-
-                    HashSet<Integer> alreadySeenB_after = new HashSet<Integer>();
-                    // for each item after
-                    if (!alreadyDoneForItemA) {
-                        for (int k = i + 1; k < seq.getItemsets().size(); k++) {
-                            Itemset itemsetB = seq.get(k);
-                            for (int m = 0; m < itemsetB.size(); m++) {
-                                Integer itemB = (Integer) itemsetB.get(m).getId();
-                                if (alreadySeenB_after.contains(itemB)) {
-                                    continue;
-                                }
-
-                                if (mapCoocItemAfter == null) {
-                                    mapCoocItemAfter = new HashMap<Integer, Integer>();
-                                    coocMapAfter.put(itemA, mapCoocItemAfter);
-                                }
-                                Integer frequency = mapCoocItemAfter.get(itemB);
-                                if (frequency == null) {
-                                    mapCoocItemAfter.put(itemB, 1);
-                                } else {
-                                    mapCoocItemAfter.put(itemB, frequency + 1);
-                                }
-                                alreadySeenB_after.add(itemB);
-                            }
-                        }
-                        alreadySeenA.add(itemA);
-                    }
-                }
-            }
-        }
-
-        database.clear();
-        database = null;
+    public void runAlgorithm2(SequenceDatabase database, boolean keepPatterns, boolean verbose) {
+       
+        saver = new SaverIntoMemory();
         
-        // DEBUGING PFV
-		// Calculate the size of CMAP (hashmaps)
-//    	
-//		int pairCount = 0;
-//		double maxMemory = getObjectSize(coocMapAfter);
-//		for(Entry<Integer, Map<Integer, Integer>> entry : coocMapAfter.entrySet()) {
-//			maxMemory += getObjectSize(entry.getKey());
-//			for(Entry<Integer, Integer> entry2 :entry.getValue().entrySet()) {
-//				pairCount++;
-//				maxMemory += getObjectSize(entry2.getKey()) + getObjectSize(entry2.getValue());
-//			}
-//		}
-//		System.out.println("CMAP size " + maxMemory + " MB");
-//		System.out.println("PAIR COUNT " + pairCount);
-    	
-//		// Calculate the size of CMAP (matrix) INTEGERS
-        //2990, 9025, 13905, 267, 20, 497, 10094
-//        int size = 2990;
-		
-//		System.exit(0);
-
-		
-     // Calculate the size of CMAP (matrix) BITSETS
-		// BMS, KOSARAK, LEV, SNAKE, SIGN, FIFA
-//		int [] sizes = new int[] {497, 10094, 9025, 20, 267, 2990};
-//		for(int size : sizes) {
-//			int[][] array2 = new int[size][size];
-//			System.out.println(" INT MATRIX :" + getObjectSize(array2) + "MB");
-//			
-//			BitSet array = new BitSet(size);
-//			System.out.println("BITSET : " + getObjectSize(array)*((double)size) + " MB");
-//		}
-//		System.exit(0);
-
-		
-		
-
-        // END-OF-NEW-CODE
-
-        //Inizialitation of the class that is in charge of find the frequent patterns
-        FrequentPatternEnumeration_ClaSP frequentPatternEnumeration = new FrequentPatternEnumeration_ClaSP(abstractionCreator, minSupAbsolute, saver, findClosedPatterns, executePruningMethods);
-
-        this.mainMethodStart = System.currentTimeMillis();
-        //We dfsPruning the search
-        frequentPatternEnumeration.dfsPruning(new Pattern(), FrequentAtomsTrie, verbose, coocMapAfter, coocMapEquals);
-        this.mainMethodEnd = System.currentTimeMillis();
-        //Once we had finished, we keep the number of frequent patterns that we found
-        numberOfFrequentPatterns = frequentPatternEnumeration.getFrequentPatterns();
-
-        // check the memory usage for statistics
-        MemoryLogger.getInstance().checkMemory();
-
-        if (verbose) {
-            System.out.println("ClaSP: The algorithm takes " + (mainMethodEnd - mainMethodStart) / 1000 + " seconds and finds " + numberOfFrequentPatterns + " patterns");
-        }
-        //If the we are interested in closed patterns, we dfsPruning the post-processing step
-        if (findClosedPatterns) {
-            List<Entry<Pattern, Trie>> outputPatternsFromMainMethod = FrequentAtomsTrie.preorderTraversal(null);
-
-            this.postProcessingStart = System.currentTimeMillis();
-            frequentPatternEnumeration.removeNonClosedPatterns(outputPatternsFromMainMethod, keepPatterns);
-            this.postProcessingEnd = System.currentTimeMillis();
-            numberOfFrequentPatterns = frequentPatternEnumeration.getFrequentPatterns();
-            if (verbose) {
-                System.out.println("ClaSP:The post-processing algorithm to remove the non-Closed patterns takes " + (postProcessingEnd - postProcessingStart) / 1000 + " seconds and finds " + numberOfFrequentPatterns + " Closed patterns");
-            }
-        } else {
-            if (keepPatterns) {
-                List<Entry<Pattern, Trie>> outputPatternsFromMainMethod = FrequentAtomsTrie.preorderTraversal(null);
-                for (Entry<Pattern, Trie> p : outputPatternsFromMainMethod) {
-                    saver.savePattern(p.getKey());
-                }
-            }
-        }
-
-        numberOfFrequentPatterns = frequentPatternEnumeration.getFrequentPatterns();
-        frequentPatternEnumeration.clear();
-
-        // check the memory usage for statistics
-        MemoryLogger.getInstance().checkMemory();
-
-        joinCount = frequentPatternEnumeration.joinCount;
+        // reset the stats about memory usage
+        MemoryLogger.getInstance().reset();
+        //keeping the starting time
+        overallStart = System.currentTimeMillis();
+        //Starting ClaSP algorithm
+        claSP2(database, (long) minSupAbsolute, keepPatterns, verbose, findClosedPatterns, executePruningMethods);
+        //keeping the ending time
+        overallEnd = System.currentTimeMillis();
+        //Search for frequent patterns: Finished
+        saver.finish();
     }
     
     protected void claSP2(SequenceDatabase database, long minSupAbsolute, boolean keepPatterns, boolean verbose, boolean findClosedPatterns, boolean executePruningMethods) {
@@ -565,6 +373,190 @@ public class AlgoCM_ClaSP extends SPMiningAlgorithm{
 
         joinCount = frequentPatternEnumeration.joinCount;
     }
+    
+    /**
+     * The actual method for extracting frequent sequences.
+     *
+     * @param database The original database
+     * @param minSupAbsolute the absolute minimum support
+     * @param keepPatterns flag indicating if we are interested in keeping the
+     * output of the algorithm
+     * @param verbose Flag for debugging purposes
+     * @param
+     * @throws IOException
+     */
+    protected void claSP(SequenceDatabase database, long minSupAbsolute, boolean keepPatterns, boolean verbose, boolean findClosedPatterns, boolean executePruningMethods) throws IOException {
+        //We get the initial trie whose children are the frequent 1-patterns
+        FrequentAtomsTrie = database.frequentItems();
+
+        //  NEW-CODE-PFV 2013
+        // Map: key: item   value:  another item that followed the first item + support
+        // (could be replaced with a triangular matrix...)
+        Map<Integer, Map<Integer, Integer>> coocMapAfter = new HashMap<Integer, Map<Integer, Integer>>(1000);
+        Map<Integer, Map<Integer, Integer>> coocMapEquals = new HashMap<Integer, Map<Integer, Integer>>(1000);
+
+        // update COOC map
+        for (Sequence seq : database.getSequences()) {
+            HashSet<Integer> alreadySeenA = new HashSet<Integer>();
+            Map<Integer, Set<Integer>> alreadySeenB_equals = new HashMap<>();
+
+            // for each item
+            for (int i = 0; i < seq.getItemsets().size(); i++) {
+                Itemset itemsetA = seq.get(i);
+                for (int j = 0; j < itemsetA.size(); j++) {
+                    Integer itemA = (Integer) itemsetA.get(j).getId();
+
+                    boolean alreadyDoneForItemA = false;
+                    Set equalSet = alreadySeenB_equals.get(itemA);
+                    if (equalSet == null) {
+                        equalSet = new HashSet();
+                        alreadySeenB_equals.put(itemA, equalSet);
+                    }
+
+                    if (alreadySeenA.contains(itemA)) {
+                        alreadyDoneForItemA = true;
+                    }
+
+                    // create the map if not existing already
+                    Map<Integer, Integer> mapCoocItemEquals = coocMapEquals.get(itemA);
+                    // create the map if not existing already
+                    Map<Integer, Integer> mapCoocItemAfter = null;
+                    if (!alreadyDoneForItemA) {
+                        mapCoocItemAfter = coocMapAfter.get(itemA);
+                    }
+
+                    //For each item after itemA in the same itemset
+                    for (int k = j + 1; k < itemsetA.size(); k++) {
+                        Integer itemB = (Integer) itemsetA.get(k).getId();
+                        if (!equalSet.contains(itemB)) {
+                            if (mapCoocItemEquals == null) {
+                                mapCoocItemEquals = new HashMap<Integer, Integer>();
+                                coocMapEquals.put(itemA, mapCoocItemEquals);
+                            }
+                            Integer frequency = mapCoocItemEquals.get(itemB);
+
+                            if (frequency == null) {
+                                mapCoocItemEquals.put(itemB, 1);
+                            } else {
+                                mapCoocItemEquals.put(itemB, frequency + 1);
+                            }
+                            
+                            equalSet.add(itemB);
+                        }
+                    }
+
+                    HashSet<Integer> alreadySeenB_after = new HashSet<Integer>();
+                    // for each item after
+                    if (!alreadyDoneForItemA) {
+                        for (int k = i + 1; k < seq.getItemsets().size(); k++) {
+                            Itemset itemsetB = seq.get(k);
+                            for (int m = 0; m < itemsetB.size(); m++) {
+                                Integer itemB = (Integer) itemsetB.get(m).getId();
+                                if (alreadySeenB_after.contains(itemB)) {
+                                    continue;
+                                }
+
+                                if (mapCoocItemAfter == null) {
+                                    mapCoocItemAfter = new HashMap<Integer, Integer>();
+                                    coocMapAfter.put(itemA, mapCoocItemAfter);
+                                }
+                                Integer frequency = mapCoocItemAfter.get(itemB);
+                                if (frequency == null) {
+                                    mapCoocItemAfter.put(itemB, 1);
+                                } else {
+                                    mapCoocItemAfter.put(itemB, frequency + 1);
+                                }
+                                alreadySeenB_after.add(itemB);
+                            }
+                        }
+                        alreadySeenA.add(itemA);
+                    }
+                }
+            }
+        }
+
+        database.clear();
+        database = null;
+        
+        // DEBUGING PFV
+		// Calculate the size of CMAP (hashmaps)
+//    	
+//		int pairCount = 0;
+//		double maxMemory = getObjectSize(coocMapAfter);
+//		for(Entry<Integer, Map<Integer, Integer>> entry : coocMapAfter.entrySet()) {
+//			maxMemory += getObjectSize(entry.getKey());
+//			for(Entry<Integer, Integer> entry2 :entry.getValue().entrySet()) {
+//				pairCount++;
+//				maxMemory += getObjectSize(entry2.getKey()) + getObjectSize(entry2.getValue());
+//			}
+//		}
+//		System.out.println("CMAP size " + maxMemory + " MB");
+//		System.out.println("PAIR COUNT " + pairCount);
+    	
+//		// Calculate the size of CMAP (matrix) INTEGERS
+        //2990, 9025, 13905, 267, 20, 497, 10094
+//        int size = 2990;
+		
+//		System.exit(0);
+
+		
+     // Calculate the size of CMAP (matrix) BITSETS
+		// BMS, KOSARAK, LEV, SNAKE, SIGN, FIFA
+//		int [] sizes = new int[] {497, 10094, 9025, 20, 267, 2990};
+//		for(int size : sizes) {
+//			int[][] array2 = new int[size][size];
+//			System.out.println(" INT MATRIX :" + getObjectSize(array2) + "MB");
+//			
+//			BitSet array = new BitSet(size);
+//			System.out.println("BITSET : " + getObjectSize(array)*((double)size) + " MB");
+//		}
+//		System.exit(0);
+        // END-OF-NEW-CODE
+
+        //Inizialitation of the class that is in charge of find the frequent patterns
+        FrequentPatternEnumeration_ClaSP frequentPatternEnumeration = new FrequentPatternEnumeration_ClaSP(abstractionCreator, minSupAbsolute, saver, findClosedPatterns, executePruningMethods);
+
+        this.mainMethodStart = System.currentTimeMillis();
+        //We dfsPruning the search
+        frequentPatternEnumeration.dfsPruning(new Pattern(), FrequentAtomsTrie, verbose, coocMapAfter, coocMapEquals);
+        this.mainMethodEnd = System.currentTimeMillis();
+        //Once we had finished, we keep the number of frequent patterns that we found
+        numberOfFrequentPatterns = frequentPatternEnumeration.getFrequentPatterns();
+
+        // check the memory usage for statistics
+        MemoryLogger.getInstance().checkMemory();
+
+        if (verbose) {
+            System.out.println("ClaSP: The algorithm takes " + (mainMethodEnd - mainMethodStart) / 1000 + " seconds and finds " + numberOfFrequentPatterns + " patterns");
+        }
+        //If the we are interested in closed patterns, we dfsPruning the post-processing step
+        if (findClosedPatterns) {
+            List<Entry<Pattern, Trie>> outputPatternsFromMainMethod = FrequentAtomsTrie.preorderTraversal(null);
+
+            this.postProcessingStart = System.currentTimeMillis();
+            frequentPatternEnumeration.removeNonClosedPatterns(outputPatternsFromMainMethod, keepPatterns);
+            this.postProcessingEnd = System.currentTimeMillis();
+            numberOfFrequentPatterns = frequentPatternEnumeration.getFrequentPatterns();
+            if (verbose) {
+                System.out.println("ClaSP:The post-processing algorithm to remove the non-Closed patterns takes " + (postProcessingEnd - postProcessingStart) / 1000 + " seconds and finds " + numberOfFrequentPatterns + " Closed patterns");
+            }
+        } else {
+            if (keepPatterns) {
+                List<Entry<Pattern, Trie>> outputPatternsFromMainMethod = FrequentAtomsTrie.preorderTraversal(null);
+                for (Entry<Pattern, Trie> p : outputPatternsFromMainMethod) {
+                    saver.savePattern(p.getKey());
+                }
+            }
+        }
+
+        numberOfFrequentPatterns = frequentPatternEnumeration.getFrequentPatterns();
+        frequentPatternEnumeration.clear();
+
+        // check the memory usage for statistics
+        MemoryLogger.getInstance().checkMemory();
+
+        joinCount = frequentPatternEnumeration.joinCount;
+    }
 
     private double getObjectSize(
             Object object)
@@ -621,30 +613,15 @@ public class AlgoCM_ClaSP extends SPMiningAlgorithm{
         FrequentAtomsTrie.removeAll();
         abstractionCreator = null;
     }
-
-    /**
-     * Method to show the tree in a graphical way
-     */
-    public void showTree() {
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Tree");
-        DefaultTreeModel model = new DefaultTreeModel(root);
-        JTree tree = new JTree(model);
-
-        FrequentAtomsTrie.display(model, root);
-
-        for (int i = 0; i < tree.getRowCount(); i++) {
-            tree.expandRow(i);
-        }
-
-        // Construction a visualization of the window
-        JFrame v = new JFrame();
-        JScrollPane scroll = new JScrollPane(tree);
-        v.getContentPane().add(scroll);
-        v.pack();
-        v.setVisible(true);
-        v.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-    }
     
+    /**
+     * Get the trie (internal structure used by ClaSP).
+     * @return the trie
+     */
+    public Trie getFrequentAtomsTrie() {
+		return FrequentAtomsTrie;
+	}
+
     public List<FrequentPattern> patternArrayToFrequentPatternList_CMClaSP(SequenceDatabase database,List<Pattern> input,List<Sentence> corpus){
         List<FrequentPattern> res=new ArrayList<>();
         for(Pattern pat:input){

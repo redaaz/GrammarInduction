@@ -255,7 +255,7 @@ public class FrequentPattern {
         /*PERFORMANCE TEST*/acc3+=tt4-tt3;
         for(IntCursor i: res1){
             //if (General.ContainsSequence(this.patterns,General.toIntegerList(in.get(i).toStringCM_SPAM())))
-            
+            //System.out.println(i.value);
             if (General.ContainsSequence(this.patterns,in.get(i.value).sentenceCode))
                res.add(i.value);       
         }
