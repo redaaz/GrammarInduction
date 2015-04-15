@@ -130,7 +130,7 @@ public class SequenceDatabase{
     public double loadData(List<Sentence> input, double minSupport){
         //For each line
         for(Sentence sen:input){
-                addSequence(sen.getSentenceCodeForCMClaSP());
+                addSequence(sen.getSentenceCodeForAlgos());
         }
         double support = (int) Math.ceil(minSupport * sequences.size());
         Set<Item> frequentItemsSet = frequentItems.keySet();

@@ -34,7 +34,7 @@ import java.util.List;
 public class SaverIntoMemory implements Saver{
     
     private Sequences patterns=null;
-    
+    /*****/
     public Sequences getSequences(){
         return patterns;
     }

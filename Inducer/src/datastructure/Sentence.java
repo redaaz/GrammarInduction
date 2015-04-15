@@ -113,7 +113,7 @@ public class Sentence {
         return this.originalReference;
     }
     
-    public String[] getSentenceCodeForCMSPADE(){
+    public String[] getSentenceCodeForAlgos(){
         if(this.sentenceCode==null || this.sentenceCode.isEmpty())
             return null;
         String[] res=new String[this.sentenceCode.size()*2+1];
@@ -128,18 +128,4 @@ public class Sentence {
         return res;
     }
     
-    public String[] getSentenceCodeForCMClaSP(){
-        if(this.sentenceCode==null || this.sentenceCode.isEmpty())
-            return null;
-        String[] res=new String[this.sentenceCode.size()*2+1];
-        int counter=0;
-        for(Integer in:this.sentenceCode){
-            res[counter]=""+in;
-            counter++;
-            res[counter]="-1";
-            counter++;
-        }
-        res[this.sentenceCode.size()*2]="-2";
-        return res;
-    }
 }

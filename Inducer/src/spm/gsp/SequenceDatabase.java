@@ -116,7 +116,7 @@ public class SequenceDatabase {
     public void loadData(List<Sentence> input, double minSupport) {
         
         for(Sentence sen:input) {
-            addSequence(sen.getSentenceCodeForCMSPADE());
+            addSequence(sen.getSentenceCodeForAlgos());
         }
         double minSupRelative = (int) Math.ceil(minSupport * sequences.size());
        // double support = (int) (minSupport * sequences.size());

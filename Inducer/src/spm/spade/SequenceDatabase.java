@@ -109,7 +109,7 @@ public class SequenceDatabase {
         long t0=0,t1=0,t2=0,t3=0;
         t0=System.currentTimeMillis();
         for(Sentence sen:input){
-            addSequence(sen.getSentenceCodeForCMSPADE());
+            addSequence(sen.getSentenceCodeForAlgos());
         }
         t1=System.currentTimeMillis();
         double support = (int) Math.ceil(minSupport * sequences.size());
