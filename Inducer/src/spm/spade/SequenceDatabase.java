@@ -104,7 +104,7 @@ public class SequenceDatabase {
             }
         }
     }
-    
+    /*****/
     public void loadData(List<Sentence> input, double minSupport) {
         long t0=0,t1=0,t2=0,t3=0;
         t0=System.currentTimeMillis();
@@ -153,7 +153,7 @@ public class SequenceDatabase {
         sequence.setID(nSequences);
         nSequences++;
         int beginning = 0;
-        //
+        /*****/
         int pos=0;
         //
         
@@ -168,12 +168,14 @@ public class SequenceDatabase {
                 itemset = new Itemset();
                 itemset.setTimestamp(time);
                 timestamp++;
+                /*****/
                 pos++;
             } else if (integers[i].equals("-2")) { // End of a sequence
                 sequences.add(sequence);
             } else {
                 // extract the value for an item
                 Item item = itemFactory.getItem(Integer.parseInt(integers[i]));
+                /*****/
                 item.addRepetition(sequence.getId()-1, pos);
                 EquivalenceClass clase = frequentItems.get(item);
                 if (clase == null) {
@@ -319,7 +321,7 @@ public class SequenceDatabase {
         frequentItems = null;
         itemFactory = null;
     }
-    
+    /*****/
     public void clear2(){
         if (sequences != null) {
             sequences.clear();

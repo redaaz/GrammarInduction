@@ -41,7 +41,7 @@ public class Pattern implements Comparable<Pattern> {
      */
     private BitSet appearingIn;
     
-    public List<Repetition> refList;
+    //public List<Repetition> refList;
 
     /**
      * Standard constructor
@@ -49,7 +49,7 @@ public class Pattern implements Comparable<Pattern> {
     public Pattern() {
         this.elements = new ArrayList<ItemAbstractionPair>();
         this.appearingIn = new BitSet();
-        this.refList = new ArrayList<>();
+        //this.refList = new ArrayList<>();
     }
 
     /**
@@ -59,7 +59,7 @@ public class Pattern implements Comparable<Pattern> {
     public Pattern(List<ItemAbstractionPair> elements) {
         this.elements = elements;
         this.appearingIn = new BitSet();
-        this.refList = new ArrayList<>();
+       // this.refList = new ArrayList<>();
     }
 
     /**
@@ -70,7 +70,7 @@ public class Pattern implements Comparable<Pattern> {
         this.elements = new ArrayList<ItemAbstractionPair>();
         this.elements.add(pair);
         this.appearingIn = new BitSet();
-        this.refList = new ArrayList<>();
+        //this.refList = new ArrayList<>();
     }
 
     /**

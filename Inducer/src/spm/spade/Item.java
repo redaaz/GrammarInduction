@@ -36,7 +36,7 @@ public class Item<T extends Comparable> implements Comparable<Item> {
      * several types of items.
      */
     private T id;
-    //
+    /*****/
     public List<Repetition> repList;
     /**
      * General constructor.
@@ -44,6 +44,7 @@ public class Item<T extends Comparable> implements Comparable<Item> {
      */
     public Item(T id) {
         this.id = id;
+        /*****/
         this.repList = new ArrayList<>();
     }
 
@@ -92,11 +93,11 @@ public class Item<T extends Comparable> implements Comparable<Item> {
         //return -id.compareTo(i.getId());
         return id.compareTo(i.getId());
     }
-    
+    /*****/
     public List<Repetition> getRepetitionList(){
         return this.repList;
     }
-    
+    /*****/
     public void addRepetition(int senID,int pos){
          this.repList.add(new Repetition(senID,pos));
     }

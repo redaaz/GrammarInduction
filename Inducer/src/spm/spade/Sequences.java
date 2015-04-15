@@ -73,7 +73,7 @@ public class Sequences {
         }
         return r.toString();
     }
-
+    /*****/
     public List<Pattern> getOnePatternsList(){
         List<Pattern> res=new ArrayList<>();
         if (levels != null) {

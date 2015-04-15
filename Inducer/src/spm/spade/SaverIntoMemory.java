@@ -52,11 +52,6 @@ public class SaverIntoMemory implements Saver{
         patterns.addSequence(p, p.size());
     }
     
-    
-    public void savePattern2(Pattern p,List<String> res) {
-        res.add(p.toStringToFile());
-    }
-    
     @Override
     public void finish() {
         patterns.sort();

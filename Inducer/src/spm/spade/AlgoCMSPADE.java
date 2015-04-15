@@ -134,7 +134,7 @@ public class AlgoCMSPADE extends SPMiningAlgorithm{
         t4=System.currentTimeMillis();
         List<Pattern> lp=((SaverIntoMemory)saver).getSequences().getOnePatternsList();
         
-        List<FrequentPattern> frequentPatterns = patternArrayToFrequentPatternList_CMSPADE(sequenceDatabase,lp, input);
+        List<FrequentPattern> frequentPatterns = patternArrayToFrequentPatternList(sequenceDatabase,lp, input);
         t5=System.currentTimeMillis();
         
         System.out.println("(1) "+(t2-t1));
@@ -758,13 +758,13 @@ public class AlgoCMSPADE extends SPMiningAlgorithm{
         // check the memory usage for statistics
         MemoryLogger.getInstance().checkMemory();
     }
-    
+    /*****/
     @Override
     public String getAlgoName(){
         return "AlgoCMSPADE";
     }
-    
-    public List<FrequentPattern> patternArrayToFrequentPatternList_CMSPADE(SequenceDatabase database,List<Pattern> input,List<Sentence> corpus){
+    /*****/
+    public List<FrequentPattern> patternArrayToFrequentPatternList(SequenceDatabase database,List<Pattern> input,List<Sentence> corpus){
         List<FrequentPattern> res=new ArrayList<>();
         for(Pattern pat:input){
            
